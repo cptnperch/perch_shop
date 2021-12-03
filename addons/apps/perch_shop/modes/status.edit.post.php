@@ -1,0 +1,43 @@
+<?php
+    # Side panel
+    echo $HTML->side_panel_start();
+    //echo $HTML->para('');
+    echo $HTML->side_panel_end();
+
+    # Main panel
+    echo $HTML->main_panel_start();
+    include('_subnav.php');
+
+    if (is_object($Status)) {
+        echo $HTML->heading1('Editing Status ‘%s’', $HTML->encode($Status->statusTitle()));
+    }else{
+        echo $HTML->heading1('Creating a New Order Status');
+    }
+
+    if ($message) echo $message;
+
+    $template_help_html = $Template->find_help();
+    if ($template_help_html) {
+        echo $HTML->heading2('Help');
+        echo '<div id="template-help">' . $template_help_html . '</div>';
+    }
+
+    echo $HTML->heading2('Status');
+
+    /* ---- FORM ---- */
+    echo $Form->form_start('edit');
+
+
+        if (is_object($Status)) {
+            if (!$Status->statusEditable()) {
+                //#$Form->display_only = true;
+            }
+        }
+
+        echo $Form->fields_from_template($Template, $details);
+        echo $Form->submit_field('btnSubmit', 'Save', $API->app_path());
+
+    echo $Form->form_end();
+    /* ---- /FORM ---- */
+
+    echo $HTML->main_panel_end();

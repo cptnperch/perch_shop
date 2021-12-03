@@ -1,0 +1,7 @@
+{
+    "lang": "en-gb",
+    "Products": "Products",
+    "Delete Product": "Delete Product",
+    "Delete Brand": "Delete Brand",
+    "Delete Option": "Delete Option"
+}
