@@ -1,14 +1,8 @@
-<?php include (PERCH_PATH.'/core/inc/sidebar_start.php'); ?>
-<p><?php //echo PerchLang::get(''); ?></p>
-<?php include (PERCH_PATH.'/core/inc/sidebar_end.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/main_start.php'); ?>
-<?php include ('_subnav.php'); ?>
-
-    
-    <h1><?php echo $Lang->get('Shop Dashboard'); ?></h1>
-
-	<?php
-    $Alert->output();
+<?php
+	
+	echo $HTML->title_panel([
+		'heading' => $Lang->get('Shop dashboard'),
+	], $CurrentUser);
 
 if ($first_run) {
 
@@ -20,10 +14,27 @@ if ($first_run) {
 			$action_url = 'https://docs.grabaperch.com/addons/shop/getting-started/' . $action_url;
 		}
 
-		echo '<li class="'.$status.' icon">'.$html_message.($action_msg?'<a class="action" href="'.PerchUtil::html($action_url, true).'">'.$action_msg.'</a>':'').'</li>';
+		switch($status) {
+			case 'todo':
+				$class = 'warning';
+				$icon  = PerchUI::icon('core/alert');
+				break;
+
+			case 'success':
+				$class = 'success';
+				$icon  = PerchUI::icon('core/circle-check');
+				break;
+
+			default: 
+				$class = $status;
+				break;
+		}
+
+		echo '<li class="progress-item progress-'.$class.'">'.$icon.' '.$html_message.($action_msg?'<a class="button button-small action-'.$class.'" href="'.PerchUtil::html($action_url, true).'">'.$action_msg.'</a>':'').'</li>';
 	}
 
-	echo '<ul class="importables">';
+	echo '<div class="inner">';
+	echo '<ul class="progress-list">';
 
 	$todos_found = 0;
 
@@ -53,7 +64,7 @@ if ($first_run) {
 			$status = 'success';
 		}
 
-		do_importable($status, $Lang->get('%sCreate a category set%s for your products.', '<a class="go" href="'.PERCH_LOGINPATH.'/core/apps/categories/sets/edit/">', '</a>'), '#categories');
+		do_importable($status, $Lang->get('%sCreate a category set%s for your products.', '<a class="go progress-link" href="'.PERCH_LOGINPATH.'/core/apps/categories/sets/edit/">', '</a>'), '#categories');
 
 		if ($status == 'todo') $todos_found++;
 	/* --------------------------------- */
@@ -67,7 +78,7 @@ if ($first_run) {
 		if (PerchUtil::count($active)) {
 			$status = 'success';
 		}
-		do_importable($status, $Lang->get('%sEnable at least one currency%s to sell in.', '<a class="go" href="'.$API->app_path('perch_shop').'/currencies/">', '</a>'), '#currency');
+		do_importable($status, $Lang->get('%sEnable at least one currency%s to sell in.', '<a class="go progress-link" href="'.$API->app_path('perch_shop').'/currencies/">', '</a>'), '#currency');
 
 		if ($status == 'todo') $todos_found++;
 	/* --------------------------------- */
@@ -79,7 +90,7 @@ if ($first_run) {
 		if ($Settings->get('perch_shop_default_currency')->val()) {
 			$status = 'success';
 		}
-		do_importable($status, $Lang->get('%sConfigure settings%s for currencies and how prices are entered.', '<a class="go" href="'.PERCH_LOGINPATH.'/core/settings/#perch_shop">', '</a>'), '#tax');
+		do_importable($status, $Lang->get('%sConfigure settings%s for currencies and how prices are entered.', '<a class="go progress-link" href="'.PERCH_LOGINPATH.'/core/settings/#perch_shop">', '</a>'), '#tax');
 
 		if ($status == 'todo') $todos_found++;
 	/* --------------------------------- */
@@ -91,7 +102,7 @@ if ($first_run) {
 		if ($loc) {
 			$status = 'success';
 		}
-		do_importable($status, $Lang->get('%sCreate a home tax location%s for tax calculation purposes.', '<a class="go" href="'.$API->app_path('perch_shop').'/tax/locations/">', '</a>'), '#tax');
+		do_importable($status, $Lang->get('%sCreate a home tax location%s for tax calculation purposes.', '<a class="go progress-link" href="'.$API->app_path('perch_shop').'/tax/locations/">', '</a>'), '#tax');
 
 		if ($status == 'todo') $todos_found++;
 	/* --------------------------------- */
@@ -103,7 +114,7 @@ if ($first_run) {
 		if ($loc) {
 			$status = 'success';
 		}
-		do_importable($status, $Lang->get('%sCreate a default tax location%s for tax calculation purposes.', '<a class="go" href="'.$API->app_path('perch_shop').'/tax/locations/">', '</a>'), '#tax');
+		do_importable($status, $Lang->get('%sCreate a default tax location%s for tax calculation purposes.', '<a class="go progress-link" href="'.$API->app_path('perch_shop').'/tax/locations/">', '</a>'), '#tax');
 
 		if ($status == 'todo') $todos_found++;
 	/* --------------------------------- */
@@ -116,7 +127,7 @@ if ($first_run) {
 		if (PerchUtil::count($groups)) {
 			$status = 'success';
 		}
-		do_importable($status, $Lang->get('%sCreate at least one tax group%s to assign your products and shipping to.', '<a class="go" href="'.$API->app_path('perch_shop').'/tax/groups/edit/">', '</a>'), '#tax');
+		do_importable($status, $Lang->get('%sCreate at least one tax group%s to assign your products and shipping to.', '<a class="go progress-link" href="'.$API->app_path('perch_shop').'/tax/groups/edit/">', '</a>'), '#tax');
 
 		if ($status == 'todo') $todos_found++;
 	/* --------------------------------- */
@@ -128,7 +139,7 @@ if ($first_run) {
 		if (PerchUtil::count($groups)) {
 			$status = 'success';
 		}
-		do_importable($status, $Lang->get('%sCreate at least one shipping zone%s to define where in the world you deliver to.', '<a class="go" href="'.$API->app_path('perch_shop').'/shippings/zones/edit/">', '</a>'), '#shipping');
+		do_importable($status, $Lang->get('%sCreate at least one shipping zone%s to define where in the world you deliver to.', '<a class="go progress-link" href="'.$API->app_path('perch_shop').'/shippings/zones/edit/">', '</a>'), '#shipping');
 
 		if ($status == 'todo') $todos_found++;
 	/* --------------------------------- */
@@ -141,7 +152,7 @@ if ($first_run) {
 		if (PerchUtil::count($groups)) {
 			$status = 'success';
 		}
-		do_importable($status, $Lang->get('%sCreate at least one shipping method%s by which products can be shipped.', '<a class="go" href="'.$API->app_path('perch_shop').'/shippings/edit/">', '</a>'), '#shipping');
+		do_importable($status, $Lang->get('%sCreate at least one shipping method%s by which products can be shipped.', '<a class="go progress-link" href="'.$API->app_path('perch_shop').'/shippings/edit/">', '</a>'), '#shipping');
 
 		if ($status == 'todo') $todos_found++;
 	/* --------------------------------- */
@@ -153,7 +164,7 @@ if ($first_run) {
 		if (PerchUtil::count($brands)) {
 			$status = 'success';
 		}
-		do_importable($status, $Lang->get('%sCreate one or more brands%s to assign products to.', '<a class="go" href="'.$API->app_path('perch_shop_products').'/brands/edit/">', '</a>'), '#brands');
+		do_importable($status, $Lang->get('%sCreate one or more brands%s to assign products to.', '<a class="go progress-link" href="'.$API->app_path('perch_shop_products').'/brands/edit/">', '</a>'), '#brands');
 
 		if ($status == 'todo') $todos_found++;
 	/* --------------------------------- */
@@ -161,7 +172,7 @@ if ($first_run) {
 	/* products */
 		if ($todos_found==0) {
 			$status = 'success';	
-			do_importable($status, $Lang->get('All done! %sAdd some products!%s', '<a class="go" href="'.$API->app_path('perch_shop_products').'/">', '</a>'), 'https://docs.grabaperch.com/addons/shop/products/');
+			do_importable($status, $Lang->get('All done! %sAdd some products!%s', '<a class="go progress-link" href="'.$API->app_path('perch_shop_products').'/">', '</a>'), 'https://docs.grabaperch.com/addons/shop/products/');
 		}
 		
 		
@@ -170,11 +181,12 @@ if ($first_run) {
 
 
 	echo '</ul>';
+	echo '</div>';
 
 
 }else{
 ?>
-<div id="dashboard" class="dash inline-dash">
+<div id="dashboard" class="dashboard inline-dash">
 <?php
 	if (PerchUtil::count($stats)) {
 
@@ -226,5 +238,3 @@ if ($first_run) {
 
 
 } // first_run
-
-include (PERCH_PATH.'/core/inc/main_end.php');

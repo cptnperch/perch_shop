@@ -12,6 +12,8 @@ class PerchShop_OptionValues extends PerchShop_Factory
 	
 	protected $default_sort_column = 'valueTitle';
 	protected $created_date_column = 'valueCreated';
+
+	protected $event_prefix = 'shop.option.value';
 	
 
 	public $productID = false;

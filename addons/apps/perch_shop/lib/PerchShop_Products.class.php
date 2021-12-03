@@ -14,6 +14,8 @@ class PerchShop_Products extends PerchShop_Factory
 	protected $created_date_column = 'productCreated';
 	protected $deleted_date_column = 'productDeleted';
 
+	protected $event_prefix = 'shop.product';
+
 	protected $runtime_restrictions = [
 		[
 			'field'          => 'status',

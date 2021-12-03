@@ -7,6 +7,8 @@ class PerchShop_Option extends PerchShop_Base
 	protected $pk                = 'optionID';
 	protected $index_table       = 'shop_index';
 
+	protected $event_prefix = 'shop.product.option';
+
 	protected $modified_date_column = 'optionUpdated';
 	public $deleted_date_column  = 'optionDeleted';
 

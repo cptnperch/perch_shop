@@ -16,6 +16,10 @@ class PerchShop_Product extends PerchShop_Base
                                     'productStatus'        => 'status',
 									];
 
+    protected $exclude_from_api  = ['regular_pricing', 'current_price', 'productStatus', 'productCreated', 'productUpdated', 'productDeleted', 'productTemplate', 'productOrder', 'stock_location', 'productHasVariants', 'productStockOnParent', 'catalog_only', ];
+
+    protected $event_prefix = 'shop.product';
+
     public function delete()
     {
         // delete variants
@@ -82,6 +86,7 @@ class PerchShop_Product extends PerchShop_Base
 
         if ($this->is_variant()) {
             $Parent = $this->get_parent();
+            $Parent->prefix_vars = $this->prefix_vars;
             $parent = $Parent->to_array();
             $out    = array_merge($parent, $child);
         }else{
@@ -106,8 +111,35 @@ class PerchShop_Product extends PerchShop_Base
                 $out['current_price'] = $out['trade_price'];
             }    
         }
-        
+        return $out;
+    }
 
+    public function to_array_for_api()
+    {
+        $this->prefix_vars = false;
+        $child = parent::to_array_for_api();
+
+        if ($this->is_variant()) {
+            $Parent = $this->get_parent();
+            $Parent->prefix_vars = false;
+            $parent = $Parent->to_array_for_api();
+            $out    = array_merge($parent, $child);
+        }else{
+            $out = $child;
+        }
+
+        if (isset($out['regular_pricing'])) {
+            $out['current_price'] = $out['price'];
+
+            if ($out['on_sale'] || $out['sale_pricing']) {
+                $out['current_price'] = $out['sale_price'];
+            }   
+
+            if ($out['trade_pricing']) {
+                $out['current_price'] = $out['trade_price'];
+            }    
+        }
+        
         return $out;
     }
 
@@ -240,6 +272,9 @@ class PerchShop_Product extends PerchShop_Base
         $StockProduct->update([
             'stock_level' => $stock_level,
             ]);
+
+        $Perch = Perch::fetch();
+        $Perch->event('shop.product_stock_update', $StockProduct);
 	}
 
     public function has_unlimited_stock()
@@ -274,6 +309,29 @@ class PerchShop_Product extends PerchShop_Base
             }
         }
         return false;
+    }
+
+    public function get_admin_display_prices()
+    {
+        $prices = $this->price();
+        if (PerchUtil::count($prices)) {
+            if (isset($prices['_default'])) unset($prices['_default']);    
+
+            $Currencies = new PerchShop_Currencies($this->api);
+
+            $out = [];
+
+            foreach($prices as $currencyID=>$price) {
+                $Currency = $Currencies->find((int)$currencyID);
+                if ($Currency) {
+                    $out[] = $Currency->get_formatted($price);
+                }
+            }
+
+            return implode(', ', $out);
+        }
+        
+        return '-';
     }
 
     public function get_prices($qty=1, $pricing='standard', $price_tax_mode='exc', PerchShop_TaxLocation $CustomerTaxLocation, PerchShop_TaxLocation $HomeTaxLocation, PerchShop_Currency $Currency, PerchShop_CartTotaliser &$Totaliser, $customer_pays_tax=true)
@@ -318,7 +376,7 @@ class PerchShop_Product extends PerchShop_Base
             $TaxRates = new PerchShop_TaxRates($this->api);
 
             if (isset($prices[$Currency->id()])) {
-                $base_price = $prices[$Currency->id()];
+                $base_price = floatval($prices[$Currency->id()]);
 
                 // Whos tax rate do we use?
                 $TaxGroup = $this->get_tax_group();
@@ -479,7 +537,7 @@ class PerchShop_Product extends PerchShop_Base
     }
 
 
-    private function get_property($prop, PerchShop_Product $Parent=null)
+    public function get_property($prop, PerchShop_Product $Parent=null)
     {
         if ($this->parentID() == null) {
             return $this->get($prop);

@@ -1,36 +1,53 @@
-<?php include (PERCH_PATH.'/core/inc/sidebar_start.php'); ?>
-<p><?php //echo PerchLang::get(''); ?></p>
-<?php include (PERCH_PATH.'/core/inc/sidebar_end.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/main_start.php'); ?>
-<?php include ('_subnav.php'); ?>
+<?php 
 
-    <?php if ($CurrentUser->has_priv('perch_shop.shippings.create')) { ?>
-    <a class="add button" href="<?php echo PerchUtil::html($API->app_path('perch_shop').'/shippings/edit'); ?>"><?php echo $Lang->get('Add shipping method'); ?></a>
-    <?php } // perch_shop.shippings.create ?>
-    
-    <h1><?php echo $Lang->get('Listing all shipping methods'); ?></h1>
+    echo $HTML->title_panel([
+        'heading' => $Lang->get('Listing all shipping methods'),
+        'button'  => [
+            'text' => $Lang->get('Add shipping method'),
+            'link' => $API->app_nav().'/shippings/edit/',
+            'icon' => 'core/plus',
+            'priv' => 'perch_shop.shippings.create',
+        ],
+    ], $CurrentUser);
 
-	<?php
+
 	/* ----------------------------------------- SMART BAR ----------------------------------------- */
        include('_shipping_smartbar.php');
 	/* ----------------------------------------- /SMART BAR ----------------------------------------- */
-    $Alert->output();
 
-    echo $HTML->listing($shippings, 
-    		array('Title', 'Slug', 'Provider', 'Priority'), 
-    		array('shippingTitle', 'shippingSlug', 'company', 'shippingOrder'), 
-            array(
-                    'edit'   => 'edit',
-                    'delete' => 'delete',
-                ),
-            array(
-                'user'   => $CurrentUser,
-                'edit'   => 'perch_shop.shippings.edit',
-                'delete' => 'perch_shop.shippings.delete',
-                )
-            );
+    $Listing = new PerchAdminListing($CurrentUser, $HTML, $Lang, $Paging);
+    $Listing->add_col([
+            'title'     => 'Title',
+            'value'     => 'shippingTitle',
+            'sort'      => 'shippingTitle',
+            'edit_link' => 'edit',
+            'priv'      => 'perch_shop.shippings.edit',
+        ]);
 
-    echo $HTML->paging($Paging);
-    ?>
+    $Listing->add_col([
+            'title'     => 'Slug',
+            'value'     => 'shippingSlug',
+            'sort'      => 'shippingSlug',
+        ]);
 
-<?php include (PERCH_PATH.'/core/inc/main_end.php'); ?>
+    $Listing->add_col([
+            'title'     => 'Provider',
+            'value'     => function($Item) use ($HTML) {
+                return $HTML->encode($Item->company());
+            },
+        ]);
+
+    $Listing->add_col([
+            'title'     => 'Priority',
+            'value'     => 'shippingOrder',
+            'sort'      => 'shippingOrder',
+        ]);
+    
+    $Listing->add_delete_action([
+            'priv'   => 'perch_shop.shippings.delete',
+            'inline' => true,
+            'path'   => 'delete',
+        ]);
+
+    echo $Listing->render($shippings);
+

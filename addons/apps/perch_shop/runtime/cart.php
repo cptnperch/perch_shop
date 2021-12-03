@@ -14,6 +14,10 @@
 	{
 		$ShopRuntime = PerchShop_Runtime::fetch();
 		$ShopRuntime->init_cart(); 
+
+		if (PERCH_RUNWAY) {
+			$ShopRuntime->activate_sales();
+		}
 	}
 
 	function perch_shop_cart_is_preloaded()

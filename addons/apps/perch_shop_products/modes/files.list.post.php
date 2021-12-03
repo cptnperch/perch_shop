@@ -1,24 +1,13 @@
 <?php
-    # Side panel
-    echo $HTML->side_panel_start();
-    //echo $HTML->para('');
-    echo $HTML->side_panel_end();
-    
-    # Main panel
-    echo $HTML->main_panel_start(); 
-    include('_subnav.php');
-
-    if ($CurrentUser->has_priv('perch_shop.products.create')) { ?>
-    <a class="add button" href="<?php echo PerchUtil::html($API->app_path('perch_shop_products').'/product/files/edit/?pid='.$Product->id()); ?>"><?php echo $Lang->get('Add file'); ?></a>
-    <?php } // perch_shop.products.create 
-		
-    if (is_object($Product)) {
-        echo $HTML->heading1('Editing Files for ‘%s’', $HTML->encode($Product->title()));
-    }
-
-    if ($message) echo $message;    
-
-
+    echo $HTML->title_panel([
+        'heading' => $Lang->get('Editing Files for ‘%s’', $HTML->encode($Product->title())),
+        'button'  => [
+            'text' => $Lang->get('Add file'),
+            'link' => $API->app_nav('perch_shop_products').'/product/files/edit/?pid='.$Product->id(),
+            'icon' => 'core/plus',
+            'priv' => 'perch_shop.products.create',
+        ],
+    ], $CurrentUser);
 
 
     /* ----------------------------------------- SMART BAR ----------------------------------------- */
@@ -28,19 +17,39 @@
 
     /* ---------------------------------------- /SMART BAR ----------------------------------------- */
 
+    $Listing = new PerchAdminListing($CurrentUser, $HTML, $Lang, $Paging);
+    $Listing->add_col([
+            'title'     => 'Title',
+            'value'     => 'fileTitle',
+            'sort'      => 'fileTitle',
+            'edit_link' => 'edit',
+            'priv'      => 'perch_shop.products.edit',
+        ]);
 
-    echo $HTML->listing($files, 
-        array('Title', 'Slug', 'Path', 'File size'), 
-        array('fileTitle', 'fileSlug', 'resourceFile', 'resourceFileSize'), 
-        array(
-                'edit'   => 'edit',
-                'delete' => 'delete',
-            ),
-        array(
-            'user'   => $CurrentUser,
-            'edit'   => 'perch_shop.products.edit',
-            'delete' => 'perch_shop.products.delete',
-            )
-        );
-        
-    echo $HTML->main_panel_end();
+    $Listing->add_col([
+            'title'     => 'Slug',
+            'value'     => 'fileSlug',
+            'sort'      => 'fileSlug',
+        ]);    
+
+    $Listing->add_col([
+            'title'     => 'Path',
+            'value'     => 'resourceFile',
+            'sort'      => 'resourceFile',
+        ]);
+
+     $Listing->add_col([
+            'title'     => 'File size',
+            'value'     => function($Item) {
+                return $Item->file_size();
+            },
+            'sort'      => 'resourceFileSize',
+        ]);
+
+    $Listing->add_delete_action([
+            'priv'   => 'perch_shop.products.delete',
+            'inline' => true,
+            'path'   => 'delete',
+        ]);
+
+    echo $Listing->render($files);

@@ -16,6 +16,8 @@ class PerchShop_Orders extends PerchShop_Factory
 	protected $default_sort_column = 'orderCreated';
 	protected $created_date_column = 'orderCreated';
 
+	protected $event_prefix = 'shop.order';
+
 	private $customerID = false;
 
 
@@ -110,8 +112,13 @@ class PerchShop_Orders extends PerchShop_Factory
 
 	public function get_admin_listing($status=array('paid'), $Paging=false)
 	{
+		$sort_val = null;
+        $sort_dir = null;
+
+
 		if ($Paging && $Paging->enabled()) {
             $sql = $Paging->select_sql();
+            list($sort_val, $sort_dir) = $Paging->get_custom_sort_options();
         }else{
             $sql = 'SELECT';
         }
@@ -122,9 +129,13 @@ class PerchShop_Orders extends PerchShop_Factory
                 	AND o.orderDeleted IS NULL 
                 	AND o.orderStatus IN ('.$this->db->implode_for_sql_in($status).')';
 
-        if (isset($this->default_sort_column)) {
-            $sql .= ' ORDER BY o.orderCreated DESC ';
-        }
+		if ($sort_val) {
+            $sql .= ' ORDER BY '.$sort_val.' '.$sort_dir;
+        } else {
+	        if (isset($this->default_sort_column)) {
+	            $sql .= ' ORDER BY o.orderCreated DESC ';
+	        }
+	    }
 
         if ($Paging && $Paging->enabled()) {
             $sql .=  ' '.$Paging->limit_sql();

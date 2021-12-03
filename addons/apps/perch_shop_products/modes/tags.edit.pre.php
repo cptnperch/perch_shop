@@ -101,7 +101,7 @@
 			}
 			
 
-		    $message = $HTML->success_message('Your product option has been successfully edited. Return to %soption listing%s', '<a href="'.$API->app_path('perch_shop_products') .'/tags/">', '</a>');
+		    $message = $HTML->success_message('Your product tags have been successfully edited.');
 		}else{
 
 			// delete tags
@@ -113,7 +113,7 @@
 				}
 			}
 
-			$message = $HTML->success_message('Your product option has been successfully edited. Return to %soption listing%s', '<a href="'.$API->app_path('perch_shop_products') .'/tags/">', '</a>');
+			$message = $HTML->success_message('Your product tags have been successfully edited.');
 
 		    ##$message = $HTML->failure_message('Sorry, that update was not successful.');
 		}
@@ -123,7 +123,7 @@
 
 
 	if (PerchUtil::get('created') && !$message) {
-	    $message = $HTML->success_message('Your product option has been successfully created. Return to %soption listing%s', '<a href="'. $API->app_path('perch_shop_products') .'/tags/">', '</a>');
+	    $message = $HTML->success_message('Your product tags have been successfully created.');
 	}
 
 

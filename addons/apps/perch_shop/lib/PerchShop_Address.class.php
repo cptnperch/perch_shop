@@ -12,6 +12,8 @@ class PerchShop_Address extends PerchShop_Base
 
 	protected $duplicate_fields  = array('addressTitle'=>'title', 'addressSlug'=>'*title', 'addressFirstName'=>'first_name', 'addressLastName'=>'last_name', 'addressCompany'=>'company', 'addressLine1'=>'address_1', 'customerID'=>'customer', 'countryID'=>'country');
 
+	protected $event_prefix = 'shop.address';
+
 
 	public function to_array()
 	{
@@ -81,7 +83,7 @@ class PerchShop_Address extends PerchShop_Base
 		if ($Country) {
 			return $Country->country();
 		}
-		PerchUtil::debug('No country set for address', 'error');
+		PerchUtil::debug('No country set for address (name)', 'error');
 		return false;
 	}
 
@@ -91,7 +93,7 @@ class PerchShop_Address extends PerchShop_Base
 		if ($Country) {
 			return $Country->iso2();	
 		}
-		PerchUtil::debug('No country set for address', 'error');
+		PerchUtil::debug('No country set for address (iso2)', 'error');
 		return false;
 		
 	}

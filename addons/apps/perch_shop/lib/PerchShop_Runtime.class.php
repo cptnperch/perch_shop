@@ -41,6 +41,32 @@ class PerchShop_Runtime
 		$this->init_currency_id();
 	}
 
+	public function reset_after_logout()
+	{
+		$this->cart_id               = null;
+		$this->Cart                  = null;
+		$this->cart_items            = [];
+		$this->order_items           = [];
+		
+		$this->Order                 = null;
+		
+		$this->location_set_by_user  = false;
+		
+		$this->currencyID            = null;
+		$this->Currency              = null;
+		$this->taxLocationID         = null;
+		
+		$this->shippingAddress       = null;
+		$this->billingAddress        = null;
+		$this->shippingID            = null;
+		
+		
+		$this->sale_enabled          = false;
+		$this->trade_enabled         = false;
+
+		$this->init_currency_id();
+	}
+
 	private function session_is_active()
 	{
 		return session_status() === PHP_SESSION_ACTIVE;
@@ -79,6 +105,15 @@ class PerchShop_Runtime
 	public function sale_enabled()
 	{
 		return $this->sale_enabled;
+	}
+
+	public function activate_sales()
+	{
+		$Sales = new PerchShop_Sales($this->api);
+		$active_sales = $Sales->get_currently_active();
+		if (PerchUtil::count($active_sales)) {
+			$this->enable_sale_pricing();
+		}
 	}
 
 	public function enable_sale_pricing()
@@ -234,8 +269,15 @@ class PerchShop_Runtime
 		$this->set_location_from_address($this->billingAddress);
 	}
 
-	public function set_location_from_address($addressSlug, $skip_if_set=false)
+	public function set_location_from_address($addressSlug='default', $skip_if_set=false)
 	{
+		if (trim($addressSlug) == '') {
+			$addressSlug = 'default';
+		}
+
+		PerchUtil::mark('setting loc from adr '.$addressSlug);
+		PerchUtil::debug($addressSlug);
+
 		if ($skip_if_set && $this->taxLocationID) {
 			return;
 		}
@@ -308,6 +350,8 @@ class PerchShop_Runtime
 			}
 
 		}
+
+		$this->set_location_from_address('default');
 	}
 
 	public function set_cart_properties_from_form($SubmittedForm)
@@ -387,6 +431,12 @@ class PerchShop_Runtime
 	{
 		if (!$this->Cart) $this->init_cart();
 		return $this->Cart->get_cart($opts, $this->Cache);
+	}
+
+	public function get_cart_for_api($opts=array())
+	{
+		if (!$this->Cart) $this->init_cart();
+		return $this->Cart->get_cart_for_api($opts, $this->Cache);
 	}
 
 	public function get_cart_val($property='total', $opts=array(), $default_opts=array())
@@ -787,6 +837,8 @@ class PerchShop_Runtime
 			$Customer = $Customers->find_from_logged_in_member();
 			$Customer->update_from_form($SubmittedForm);
 			
+
+			$this->set_location_from_address($this->billingAddress);
 		}
 
 	}
@@ -854,12 +906,24 @@ class PerchShop_Runtime
 
 	private function get_address($Customer, $address_type='default')
 	{
+		
+		$Address   = null;
 		$Addresses = new PerchShop_Addresses($this->api);
-		$Address = $Addresses->find_for_customer($Customer->id(), $address_type);
+
+		if ($Customer) {
+			$Address = $Addresses->find_for_customer($Customer->id(), $address_type);
+		}
 
 		if (!$Address) {
 			PerchUtil::debug("no address");
-			$Address = $Addresses->create_from_logged_in_member($Customer->id(), $address_type);
+
+			if (!$address_type != 'default') {
+				$Address = $Addresses->create_from_default($Customer->id(), $address_type);				
+			}
+
+			if (!$Address) {
+				$Address = $Addresses->create_from_logged_in_member($Customer->id(), $address_type);
+			}
 		}
 
 		return $Address;

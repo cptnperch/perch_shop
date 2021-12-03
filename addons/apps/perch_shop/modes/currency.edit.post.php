@@ -1,25 +1,23 @@
 <?php
-    # Side panel
-    echo $HTML->side_panel_start();
-    //echo $HTML->para('');
-    echo $HTML->side_panel_end();
-
-    # Main panel
-    echo $HTML->main_panel_start();
-    include('_subnav.php');
 
     if (is_object($Currency)) {
-        echo $HTML->heading1('Editing Currency ‘%s’', $HTML->encode($Currency->currencyTitle()));
+        $title = $Lang->get('Editing currency ‘%s’', $HTML->encode($Currency->currencyTitle()));
     }else{
-        echo $HTML->heading1('Creating a New Currency Method');
+        $title = $Lang->get('Creating a new currency');
     }
 
-    if ($message) echo $message;
+    echo $HTML->title_panel([
+        'heading' => $title,
+    ], $CurrentUser);
+
+        /* ----------------------------------------- SMART BAR ----------------------------------------- */
+       include('_currency_smartbar.php');
+    /* ----------------------------------------- /SMART BAR ----------------------------------------- */
 
     $template_help_html = $Template->find_help();
     if ($template_help_html) {
         echo $HTML->heading2('Help');
-        echo '<div id="template-help">' . $template_help_html . '</div>';
+        echo '<div class="template-help">' . $template_help_html . '</div>';
     }
 
     echo $HTML->heading2('Currency');
@@ -32,5 +30,3 @@
 
     echo $Form->form_end();
     /* ---- /FORM ---- */
-
-    echo $HTML->main_panel_end();

@@ -15,7 +15,7 @@
     $Members = new PerchMembers_Members($API);
 
     $Paging = $API->get('Paging');
-    $Paging->set_per_page(20);
+    $Paging->set_per_page(40);
 
     $Tags = new PerchMembers_Tags($API);
     $tags = $Tags->all();
@@ -42,6 +42,7 @@
     if (isset($_GET['tag']) && $_GET['tag'] != '') {
         $filter = 'tag';
         $tag = $_GET['tag'];
+        $status = '';
     }
 
 
@@ -50,6 +51,11 @@
         $status = $_GET['status'];
     }
 
+    if (isset($_GET['show-filter']) && $_GET['show-filter'] != '') {
+        $status = '';
+    }
+
+    
 
     switch ($filter) {
 

@@ -14,6 +14,8 @@ class PerchShop_OrderItem extends PerchShop_Base
 										'itemTaxRate' => 'tax_rate',
 									];
 
+	protected $event_prefix = 'shop.orderitem';
+
     public function title()
     {
         return $this->details['title'];

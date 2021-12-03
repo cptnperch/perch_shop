@@ -87,6 +87,7 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__shop_countries` (
   `isonum` int(10) unsigned NOT NULL DEFAULT '0',
   `eu` tinyint(1) unsigned NOT NULL DEFAULT '0',
   `countryActive` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `countryDynamicFields` text,
   PRIMARY KEY (`countryID`)
 ) CHARSET=utf8;
 
@@ -458,4 +459,18 @@ CREATE TABLE IF NOT EXISTS `__PREFIX__shop_shipping_zone_countries` (
   PRIMARY KEY (`zcID`),
   KEY `idx_country` (`countryID`),
   KEY `idx_zone` (`zoneID`)
+) CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `__PREFIX__shop_sales` (
+  `saleID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `saleTitle` varchar(255) NOT NULL DEFAULT '',
+  `saleDynamicFields` mediumtext,
+  `saleFrom` datetime DEFAULT NULL,
+  `saleTo` datetime DEFAULT NULL,
+  `saleActive` tinyint(1) DEFAULT '1',
+  `saleOrder` int(10) unsigned NOT NULL DEFAULT '1',
+  `saleCreated` datetime NOT NULL DEFAULT '2015-01-01 00:00:00',
+  `saleUpdated` datetime NOT NULL DEFAULT '2015-01-01 00:00:00',
+  `saleDeleted` datetime DEFAULT NULL,
+  PRIMARY KEY (`saleID`)
 ) CHARSET=utf8;

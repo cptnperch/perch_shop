@@ -7,5 +7,7 @@ class PerchShop_CartItem extends PerchShop_Base
 	protected $pk                = 'itemID';
 	protected $index_table       = '';
 
+	protected $event_prefix = 'shop.cartitem';
+
 
 }

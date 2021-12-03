@@ -247,6 +247,9 @@ class PerchMembers_Auth extends PerchAPI_Factory
 
 		$this->_destroy_session($session_id);
 
+		$Perch = Perch::fetch();
+		$Perch->event('members.logout', []);
+
 		return;
 	}
 

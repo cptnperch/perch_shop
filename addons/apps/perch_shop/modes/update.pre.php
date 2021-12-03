@@ -42,6 +42,7 @@
     $UserPrivileges->create_privilege('perch_shop.customers.edit', 'Edit customers');
     $UserPrivileges->create_privilege('perch_shop.email.create', 'Create new emails');
     $UserPrivileges->create_privilege('perch_shop.emails.delete', 'Delete emails');
+    $UserPrivileges->create_privilege('perch_shop.emails.edit', 'Edit emails');
     $UserPrivileges->create_privilege('perch_shop.options.create', 'Create new product options');
     $UserPrivileges->create_privilege('perch_shop.options.edit', 'Edit product options');
     $UserPrivileges->create_privilege('perch_shop.orders', 'Access orders');

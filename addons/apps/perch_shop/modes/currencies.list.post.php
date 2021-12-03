@@ -1,36 +1,52 @@
-<?php include (PERCH_PATH.'/core/inc/sidebar_start.php'); ?>
-<p><?php //echo PerchLang::get(''); ?></p>
-<?php include (PERCH_PATH.'/core/inc/sidebar_end.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/main_start.php'); ?>
-<?php include ('_subnav.php'); ?>
+<?php
 
-    <?php if ($CurrentUser->has_priv('perch_shop.currencies.create')) { ?>
-    <a class="add button" href="<?php echo PerchUtil::html($API->app_path('perch_shop').'/currencies/edit'); ?>"><?php echo $Lang->get('Add currency'); ?></a>
-    <?php } // perch_shop.currencies.create ?>
-    
-    <h1><?php echo $Lang->get('Listing all currencies'); ?></h1>
+    echo $HTML->title_panel([
+        'heading' => $Lang->get('Listing all currencies'),
+        'button'  => [
+            'text' => $Lang->get('Add currency'),
+            'link' => $API->app_nav().'/currencies/edit/',
+            'icon' => 'core/plus',
+            'priv' => 'perch_shop.currencies.create',
+        ],
+    ], $CurrentUser);
 
-	<?php
-	/* ----------------------------------------- SMART BAR ----------------------------------------- */
-       
-	/* ----------------------------------------- /SMART BAR ----------------------------------------- */
-    $Alert->output();
+    /* ----------------------------------------- SMART BAR ----------------------------------------- */
+       include('_currency_smartbar.php');
+    /* ----------------------------------------- /SMART BAR ----------------------------------------- */
 
-    echo $HTML->listing($currencies, 
-    		array('Code', 'Symbol', 'Name', 'Enabled'), 
-    		array('currencyCode', 'currencySymbol', 'currencyTitle', 'active|currencyActive'), 
-            array(
-                    'edit'   => 'edit',
-                    'delete' => 'delete',
-                ),
-            array(
-                'user'   => $CurrentUser,
-                'edit'   => 'perch_shop.currencies.edit',
-                'delete' => 'perch_shop.currencies.delete',
-                )
-            );
+    $Listing = new PerchAdminListing($CurrentUser, $HTML, $Lang, $Paging);
+    $Listing->add_col([
+            'title'     => 'Code',
+            'value'     => 'currencyCode',
+            'sort'      => 'currencyCode',
+            'edit_link' => 'edit',
+            'priv'      => 'perch_shop.currencies.edit',
+        ]);
 
-    echo $HTML->paging($Paging);
-    ?>
+    $Listing->add_col([
+            'title'     => 'Symbol',
+            'value'     => 'currencySymbol',
+            'sort'      => 'currencySymbol',
+        ]);
 
-<?php include (PERCH_PATH.'/core/inc/main_end.php'); ?>
+    $Listing->add_col([
+            'title'     => 'Name',
+            'value'     => 'currencyTitle',
+            'sort'      => 'currencyTitle',
+        ]);
+
+    $Listing->add_col([
+            'title'     => 'Enabled',
+            'value'     => 'currencyActive',
+            'sort'      => 'currencyActive',
+            'type'      => 'status',
+        ]);
+    /*
+    $Listing->add_delete_action([
+            'priv'   => 'perch_shop.currencies.delete',
+            'inline' => true,
+            'path'   => 'delete',
+        ]);
+    */
+
+    echo $Listing->render($currencies);

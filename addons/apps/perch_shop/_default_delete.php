@@ -14,6 +14,7 @@
 	$API  = new PerchAPI(1.0, 'perch_shop');
 	$Lang = $API->get('Lang');
 	$HTML = $API->get('HTML');
+	$Paging = $API->get('Paging');
 
 	$Factory = new $factory($API);
 
@@ -21,6 +22,7 @@
 	$Perch->page_title = $Lang->get($title);
 
 	# Do anything you want to do before output is started
+	include('modes/_subnav.php');
 	include('modes/_delete.pre.php');
 
 	# Top layout

@@ -10,7 +10,7 @@ class PerchShop_SearchHandler implements PerchAPI_SearchHandler
         $API = new PerchAPI(1.0, 'perch_shop');
         $db = $API->get('DB');
 
-        $sql = 'SELECT \''.__CLASS__.'\' AS source, MATCH(s.searchBody) AGAINST('.$db->pdb($key).') AS score, p.title, p.productSlug, p.productDynamicFields, p.productTemplate, productID, "", "", ""
+        $sql = 'SELECT \''.__CLASS__.'\' AS source, \'Shop\' AS display_source, MATCH(s.searchBody) AGAINST('.$db->pdb($key).') AS score, p.title, p.productSlug, p.productDynamicFields, p.productTemplate, productID, "", "", ""
                 FROM '.PERCH_DB_PREFIX.'shop_search s, '.PERCH_DB_PREFIX.'shop_products p
                 WHERE p.productDeleted IS NULL
                     AND p.productID=s.itemKey AND s.itemType=\'product\'

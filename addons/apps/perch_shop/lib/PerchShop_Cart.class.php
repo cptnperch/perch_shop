@@ -21,6 +21,8 @@ class PerchShop_Cart extends PerchShop_Factory
 	private $shipping_options      = null;
 	private $shipping_zone         = null;
 
+	protected $event_prefix = 'shop.cart';
+
 	public function __construct($api=false)
 	{
 		parent::__construct($api);
@@ -289,6 +291,11 @@ class PerchShop_Cart extends PerchShop_Factory
 			return $result;
 		}
 
+	}
+
+	public function get_cart_for_api($opts, PerchShop_Cache $Cache)
+	{
+		return $this->format_result_for_api($this->calculate_cart(), $opts);
 	}
 
 	public function get_shipping_options($opts, PerchShop_Cache $Cache)
@@ -626,7 +633,7 @@ class PerchShop_Cart extends PerchShop_Factory
 		if ($this->cached_cart) return $this->cached_cart;
 
 		PerchUtil::mark('Calculating cart');
-		#PerchUtil::debug(debug_backtrace()[1]['function']);
+
 		$data = [];
 
 		$data['discount_code']  = null;
@@ -704,6 +711,9 @@ class PerchShop_Cart extends PerchShop_Factory
 		// Create a totaliser to keep track of totals
 		$Totaliser = new PerchShop_CartTotaliser;
 
+		// Create a mock totaliser for getting prices without affecting the cart
+		$MockTotaliser = new PerchShop_CartTotaliser;
+
 		if (PerchUtil::count($items)) {
 			$data['items'] = [];
 			foreach($items as $Item) {
@@ -711,6 +721,12 @@ class PerchShop_Cart extends PerchShop_Factory
 				// Find the product
 				$Product = $Products->find((int)$Item->productID());
 				$item    = $Product->get_prices($Item->itemQty(), $cart['cartPricing'], $tax_mode, $CustomerTaxLocation, $HomeTaxLocation, $Currency, $Totaliser, $customer_pays_tax);
+
+				// Add the sale prices for reference
+				// Used by sale price promos
+				if ($cart['cartPricing'] != 'sale') {
+					$item['ref_sale_prices'] = $Product->get_prices($Item->itemQty(), 'sale', $tax_mode, $CustomerTaxLocation, $HomeTaxLocation, $Currency, $MockTotaliser, $customer_pays_tax);
+				}
 
 				$item['weight']  = $Product->get_weight_and_totalise_shipping($Item->itemQty(), $Totaliser);
 				$item['sku']     = $Product->sku();
@@ -783,11 +799,74 @@ class PerchShop_Cart extends PerchShop_Factory
 		$data['currency_name']   = $Currency->currencyTitle();
 		$data['currency_symbol'] = $Currency->currencySymbol();
 
-		$this->cached_cart = $data;
 
+		$this->cached_cart = $data;
 		return $data;
 	}
 
 
+	private function format_result_for_api($result, $opts)
+	{
+		if (PerchUtil::count($result['items'])) {
+
+		
+			$to_delete = ['_variant_opts', 'options', 'tax_group'];
+
+			$result = $this->_format_field($result, 'Product', 'shop/products/product', $to_delete);
+
+			foreach($result['items'] as &$item) {
+
+				if ($item['ref_sale_prices']) {
+					unset($item['ref_sale_prices']);
+				}
+			}
+
+		}
+
+		if ($result['promotions']) {
+			unset($result['promotions']);
+		}
+
+		return $result;
+	}
+
+	private function _format_field($result, $id, $template, $to_delete)
+	{
+		$Template = $this->api->get('Template');
+		$Template->set($template, 'shop');
+		$field_type_map = $Template->get_field_type_map('shop');
+
+		foreach($result['items'] as &$item) {	
+			if ($item[$id]) {
+
+				$data = $item[$id]->to_array_for_api();
+
+
+				foreach($data as $key => &$field) {
+
+					if (in_array($key, $to_delete)) {
+						unset($data[$key]);
+						continue;
+					}
+
+                    if (array_key_exists($key, $field_type_map)) {
+                        $field = $field_type_map[$key]->get_api_value($field);
+                        continue;
+                    }
+
+                    if (is_array($field) && isset($field['processed'])) {
+                        $field = $field['processed'];
+                    }
+                    if (is_array($field) && isset($field['_default'])) {
+                        $field = $field['_default'];
+                    }
+                }
+                unset($item[$id]);
+				$item[strtolower($id)] = $data;
+			}
+		}
+
+		return $result;
+	}
 
 }

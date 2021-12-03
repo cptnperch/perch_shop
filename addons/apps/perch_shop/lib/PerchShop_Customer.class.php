@@ -12,6 +12,8 @@ class PerchShop_Customer extends PerchShop_Base
 
 	protected $duplicate_fields  = array('customerFirstName'=>'first_name', 'customerLastName'=>'last_name', 'customerEmail'=>'email', 'customerTaxID'=>'taxID', 'customerTaxIDType'=>'taxID_type');
 
+	protected $event_prefix = 'shop.customer';
+
 	public function update($data)
 	{
 		// If tax ID is being updated (or looks like it might be) force it to be rechecked.

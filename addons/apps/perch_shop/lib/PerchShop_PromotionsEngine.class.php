@@ -139,6 +139,10 @@ class PerchShop_PromotionsEngine
 				if (isset($currency_max_discounts[$Currency->id()]) && (float)$currency_max_discounts[$Currency->id()]>0) {
 					$max_discount = floatval($currency_max_discounts[$Currency->id()]);
 				}
+
+				// find product categories to match against
+				$promo_categories = $Promotion->get('categories');
+
 				
 				$data['promotions'][] = $Promotion;
 
@@ -230,6 +234,59 @@ class PerchShop_PromotionsEngine
 						}
 						break;
 
+					case 'use_sale_price':
+						PerchUtil::debug('Use sale price promo');
+						$discounted = 0;
+						if (PerchUtil::count($data['items'])) {
+							$new_items = [];
+							foreach($data['items'] as $item) {
+								if ($discounted < $max_discount) {
+									if ($this->categories_intersect($promo_categories, $item['Product']->get_property('category'))) {
+
+										if (array_key_exists('ref_sale_prices', $item) && PerchUtil::count($item['ref_sale_prices'])) {
+											
+											$price    = (float)$item['total_without_tax'];
+											$tax      = (float)$item['total_tax'];
+											$tax_rate = $item['tax_rate'];
+
+											$sale_price = (float)$item['ref_sale_prices']['total_without_tax'];
+
+											if ($price >= $sale_price) {
+												$discount_for_this_item = ($price - $sale_price);
+											}else{
+												$discount_for_this_item = $price;
+											}
+
+											$discount           = $discount_for_this_item;
+											$new_price          = $sale_price;
+											$multiplier         = 1 + ($tax_rate/100);
+											$new_price_with_tax = $new_price * $multiplier;
+											$new_tax            = $new_price_with_tax - $new_price;
+											$tax_discount       = $tax - $new_tax;
+
+											$Totaliser->add_to_item_discounts($discount, $tax_rate);
+											$Totaliser->add_to_tax_discounts($tax_discount, $tax_rate);
+
+											if (!isset($item['discount'])) $item['discount'] = 0;
+											if (!isset($item['tax_discount'])) $item['tax_discount'] = 0;
+
+											$item['discount'] += $discount;
+											$item['tax_discount'] += $tax_discount;
+
+											$discounted += $discount;
+										
+										}
+									
+									}
+
+								}else{
+									PerchUtil::debug('Hit maximum discount.');
+								}
+								$new_items[] = $item;
+							}
+							$data['items'] = $new_items;
+						}
+						break;
 
 
 				}
@@ -248,6 +305,35 @@ class PerchShop_PromotionsEngine
 	}
 
 
+	private function categories_intersect($promo_categories, $product_categories)
+	{
+		if (!PERCH_RUNWAY) {
+			return true;
+		}
+
+		// if no promo categories are set, then all good because promo is not restricted by categories
+		if (!PerchUtil::count($promo_categories)) {
+			PerchUtil::debug('Promo is not restricted by category');
+			return true;
+		}
+
+		// If there are no product categories, then it's false because it won't match
+		if (!PerchUtil::count($product_categories)) {
+			PerchUtil::debug($product_categories, 'notice');
+			PerchUtil::debug('Promo is restricted by category, and product has no categories set');
+			return false;
+		}
+
+		// At this point we should have categories on both sides. Do they intersect?
+		$result = array_intersect($promo_categories, $product_categories);
+		if (count($result)) {
+			PerchUtil::debug('Promo is restricted by category, and product has matching categories');
+			return true;	
+		} 
+
+		PerchUtil::debug('Promo is restricted by category, but product has not matching categories');
+		return false;
+	}
 
 	private function get_promotions()
 	{

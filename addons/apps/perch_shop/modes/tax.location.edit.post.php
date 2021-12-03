@@ -1,30 +1,26 @@
 <?php
-    # Side panel
-    echo $HTML->side_panel_start();
-    //echo $HTML->para('');
-    echo $HTML->side_panel_end();
-    
-    # Main panel
-    echo $HTML->main_panel_start(); 
-    include('_subnav.php');
+
 		
     if (is_object($TaxLocation)) {
-        echo $HTML->heading1('Editing Tax Location ‘%s’', $HTML->encode($TaxLocation->locationTitle()));
+        $title = $Lang->get('Editing tax location ‘%s’', $HTML->encode($TaxLocation->locationTitle()));
     }else{
-        echo $HTML->heading1('Creating a New Tax Location');
+        $title = $Lang->get('Creating a new tax location');
     }
 
-        /* ----------------------------------------- SMART BAR ----------------------------------------- */
+    echo $HTML->title_panel([
+        'heading' => $title,
+    ], $CurrentUser);
+
+    /* ----------------------------------------- SMART BAR ----------------------------------------- */
         $smartbar_selection = 'locations';
-       include('_tax_smartbar.php');
+        include('_tax_smartbar.php');
     /* ----------------------------------------- /SMART BAR ----------------------------------------- */
 
-    if ($message) echo $message;    
     
     $template_help_html = $Template->find_help();
     if ($template_help_html) {
         echo $HTML->heading2('Help');
-        echo '<div id="template-help">' . $template_help_html . '</div>';
+        echo '<div class="template-help">' . $template_help_html . '</div>';
     }
 
 
@@ -40,5 +36,3 @@
     echo $Form->form_end();
     /* ---- /FORM ---- */
         
-    echo $HTML->main_panel_end();
-  

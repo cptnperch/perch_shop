@@ -15,7 +15,7 @@
 		$Product->generate_variants();
 	}
 
-	$message = $HTML->warning_message('You should generate variants after making any changes to the options. %s', $Form->submit('btnSubmit', $Lang->get('Generate variants'), 'button action', false));
+	$message = $HTML->warning_message('You should generate variants after making any changes to the options. %s', $Form->submit('btnSubmit', $Lang->get('Generate variants'), 'button button-small action-warning', false));
 
 
 

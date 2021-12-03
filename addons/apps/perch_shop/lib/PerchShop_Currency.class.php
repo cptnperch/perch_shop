@@ -6,6 +6,7 @@ class PerchShop_Currency extends PerchShop_Base
 	protected $table             = 'shop_currencies';
 	protected $pk                = 'currencyID';
 
+	protected $event_prefix = 'shop.currency';
 
 	public function update($data)
 	{

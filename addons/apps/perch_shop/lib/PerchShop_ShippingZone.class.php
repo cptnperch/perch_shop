@@ -14,6 +14,8 @@ class PerchShop_ShippingZone extends PerchShop_Base
 									'zoneIsDefault' => 'zoneIsDefault',
 								   ];
 
+								   
+
     public function to_array()
 	{
 		$details = parent::to_array();

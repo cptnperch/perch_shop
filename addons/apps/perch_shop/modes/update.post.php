@@ -1,20 +1,19 @@
-<?php include (PERCH_PATH.'/core/inc/sidebar_start.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/sidebar_end.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/main_start.php'); ?>
+<div class="inner">
+<div style="update-box">
+	<div class="hd">
+	    <h1>Shop Software Update</h1>
+	</div>
 
-<div style="margin: 30px 0;">
-	<h1>Shop Software Update</h1>
-
-	<ul class="updates">
+	<div class="bd">
+	    <ul class="progress-list">
 	<?php
-	    echo '<li class="icon success">Updated to version '.PERCH_SHOP_VERSION.'.</li>';
+	    echo '<li class="progress-item progress-success">'.PerchUI::icon('core/circle-check').' Updated to version '.PERCH_SHOP_VERSION.'.</li>';
 
 	?>
-	</ul>
+		</ul>
+	</div>
 	<div class="submit">
-		<a href="<?php echo $Perch->get_page(true); ?>" class="button submit">Continue</a>
+		<a href="<?php echo $Perch->get_page(true); ?>" class="button button-simple action-success">Continue</a>
 	</div>
 </div>
-
-
-<?php include (PERCH_PATH.'/core/inc/main_end.php'); ?>
+</div>

@@ -1,32 +1,25 @@
-<?php
-    # Side panel
-    echo $HTML->side_panel_start();
-    //echo $HTML->para('');
-    echo $HTML->side_panel_end();
-    
-    # Main panel
-    echo $HTML->main_panel_start(); 
-    include('_subnav.php');
-		
+<?php	
     if (is_object($TaxGroup)) {
-        echo $HTML->heading1('Editing Tax Group ‘%s’', $HTML->encode($TaxGroup->groupTitle()));
+        $title = $Lang->get('Editing Tax Group ‘%s’', $HTML->encode($TaxGroup->groupTitle()));
     }else{
-        echo $HTML->heading1('Creating a New Tax Group');
+        $title = $Lang->get('Creating a New Tax Group');
     }
 
-        /* ----------------------------------------- SMART BAR ----------------------------------------- */
+    echo $HTML->title_panel([
+        'heading' => $title,
+    ], $CurrentUser);
+
+    /* ----------------------------------------- SMART BAR ----------------------------------------- */
         $smartbar_selection = 'groups';
        include('_tax_smartbar.php');
     /* ----------------------------------------- /SMART BAR ----------------------------------------- */
-
-    if ($message) echo $message;    
+  
     
     $template_help_html = $Template->find_help();
     if ($template_help_html) {
         echo $HTML->heading2('Help');
-        echo '<div id="template-help">' . $template_help_html . '</div>';
+        echo '<div class="template-help">' . $template_help_html . '</div>';
     }
-
 
     
     echo $HTML->heading2('Tax group');    
@@ -69,6 +62,3 @@
 
     echo $Form->form_end();
     /* ---- /FORM ---- */
-        
-    echo $HTML->main_panel_end();
-  

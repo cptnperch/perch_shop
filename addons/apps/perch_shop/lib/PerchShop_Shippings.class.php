@@ -16,6 +16,8 @@ class PerchShop_Shippings extends PerchShop_Factory
 	protected $default_sort_column = 'shippingOrder';
 	protected $created_date_column = 'shippingCreated';
 
+	protected $event_prefix = 'shop.shipping';
+
 	private $customerID = false;
 
 	public function find_options_for_cart($Currency, $Totaliser, $Zone=null)

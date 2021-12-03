@@ -183,6 +183,8 @@ class PerchShop_CartTotaliser
 
 	private function add_to_tax_totals($rate, $val, $key)
 	{
+		$rate = (string)$rate;
+		
 		if (array_key_exists($rate, $this->tax_rate_totals)) {
 			if (!is_array($this->tax_rate_totals[$rate])) {
 				$this->tax_rate_totals[$rate] = [];

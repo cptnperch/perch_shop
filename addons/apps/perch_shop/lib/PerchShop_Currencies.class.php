@@ -21,6 +21,8 @@ class PerchShop_Currencies extends PerchShop_Factory
 		]
 	];
 
+	protected $event_prefix = 'shop.currency';
+
 	public static function get_settings_select_list($Form, $id, $details, $setting)
 	{
 		$opts = array();

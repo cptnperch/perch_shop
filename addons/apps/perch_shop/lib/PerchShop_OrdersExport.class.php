@@ -177,6 +177,8 @@ class PerchShop_OrdersExport
 		$currency_table    = PERCH_DB_PREFIX.'shop_currencies cur';
 		$country_table     = PERCH_DB_PREFIX.'shop_countries ctr';
 		$products_table    = PERCH_DB_PREFIX.'shop_products p';
+		$order_promo_table = PERCH_DB_PREFIX.'shop_order_promotions op';
+		$promos_table 	   = PERCH_DB_PREFIX.'shop_promotions pr';
 		
 		$join_currencies   = "JOIN $currency_table ON o.currencyID=cur.currencyID";
 		$join_customers    = "JOIN $customer_table ON o.customerID=c.customerID";
@@ -185,6 +187,8 @@ class PerchShop_OrdersExport
 		$join_shipping_adr = "JOIN $adr_table ON o.orderShippingAddress=a.addressID";
 		$join_billing_adr  = "JOIN $adr_table ON o.orderBillingAddress=a.addressID";
 		$join_countries	   = "JOIN $country_table ON a.countryID=ctr.countryID";
+		$join_promos       = "LEFT JOIN $order_promo_table ON op.orderID=o.orderID 
+								LEFT JOIN $promos_table ON pr.promoID=op.promoID";
 
 		$date_range = '(o.orderCreated BETWEEN '.$this->db->pdb($this->options['start'].' 00:00:00').' AND '.$this->db->pdb($this->options['end'].' 23:59:59').')';
 		$status = 'o.orderStatus='.$this->db->pdb($this->options['status']);
@@ -217,10 +221,12 @@ class PerchShop_OrdersExport
 						o.orderShippingTaxRate AS 'Tax Rate',
 						c.customerFirstName AS 'First Name',
 						c.customerLastName AS 'Last Name',
-						c.customerEmail AS 'Email' 
+						c.customerEmail AS 'Email',
+						pr.promoTitle AS 'Promotion' 
 						FROM $orders_table 
 							$join_customers
 							$join_currencies
+							$join_promos
 						WHERE $date_range AND $status
 						ORDER BY o.orderCreated ASC";
 

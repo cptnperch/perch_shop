@@ -1,25 +1,24 @@
 <?php
-    # Side panel
-    echo $HTML->side_panel_start();
-    //echo $HTML->para('');
-    echo $HTML->side_panel_end();
-    
-    # Main panel
-    echo $HTML->main_panel_start(); 
-    include('_subnav.php');
-		
+
     if (is_object($Brand)) {
-        echo $HTML->heading1('Editing Brand ‘%s’', $HTML->encode($Brand->brandTitle()));
+        $title = $Lang->get('Editing Brand ‘%s’', $HTML->encode($Brand->brandTitle()));
     }else{
-        echo $HTML->heading1('Creating a New Brand');
+        $title = $Lang->get('Creating a New Brand');
     }
 
-    if ($message) echo $message;    
+    echo $HTML->title_panel([
+        'heading' => $title,
+    ], $CurrentUser); 
+
+    /* ----------------------------------------- SMART BAR ----------------------------------------- */
+       include('_brand_smartbar.php');
+    /* ----------------------------------------- /SMART BAR ----------------------------------------- */
+
     
     $template_help_html = $Template->find_help();
     if ($template_help_html) {
         echo $HTML->heading2('Help');
-        echo '<div id="template-help">' . $template_help_html . '</div>';
+        echo '<div class="template-help">' . $template_help_html . '</div>';
     }
     
     echo $HTML->heading2('Brand');    

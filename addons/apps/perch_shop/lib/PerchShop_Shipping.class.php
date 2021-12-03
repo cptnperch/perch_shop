@@ -12,6 +12,8 @@ class PerchShop_Shipping extends PerchShop_Base
 
 	protected $duplicate_fields  = array('shippingTitle'=>'title', 'shippingSlug'=>'slug');
 
+    protected $event_prefix = 'shop.shipping';
+
 	public function to_array()
 	{
 		$out = parent::to_array();

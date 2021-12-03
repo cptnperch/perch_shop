@@ -1,37 +1,38 @@
-<?php include (PERCH_PATH.'/core/inc/sidebar_start.php'); ?>
-<p><?php //echo PerchLang::get(''); ?></p>
-<?php include (PERCH_PATH.'/core/inc/sidebar_end.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/main_start.php'); ?>
-<?php include ('_subnav.php'); ?>
+<?php
 
-    <?php if ($CurrentUser->has_priv('perch_shop.email.create')) { ?>
-    <a class="add button" href="<?php echo PerchUtil::html($API->app_path('perch_shop').'/emails/edit'); ?>"><?php echo $Lang->get('Add email'); ?></a>
-    <?php } // perch_shop.email.create ?>
+    echo $HTML->title_panel([
+        'heading' => $Lang->get('Listing all emails'),
+        'button'  => [
+            'text' => $Lang->get('Add email'),
+            'link' => $API->app_nav().'/emails/edit/',
+            'icon' => 'core/plus',
+            'priv' => 'perch_shop.email.create',
+        ],
+    ], $CurrentUser);
 
+    /* ----------------------------------------- SMART BAR ----------------------------------------- */
+       include('_email_smartbar.php');
+    /* ----------------------------------------- /SMART BAR ----------------------------------------- */
 
-    <h1><?php echo $Lang->get('Listing all emails'); ?></h1>
+    $Listing = new PerchAdminListing($CurrentUser, $HTML, $Lang, $Paging);
+    $Listing->add_col([
+            'title'     => 'Name',
+            'value'     => 'emailTitle',
+            'sort'      => 'emailTitle',
+            'edit_link' => 'edit',
+            'priv'      => 'perch_shop.emails.edit',
+        ]);
 
-	<?php
-	/* ----------------------------------------- SMART BAR ----------------------------------------- */
+    $Listing->add_col([
+            'title'     => 'Subject',
+            'value'     => 'subject',
+            'sort'      => 'subject',
+        ]);
+    
+    $Listing->add_delete_action([
+            'priv'   => 'perch_shop.emails.delete',
+            'inline' => true,
+            'path'   => 'delete',
+        ]);
 
-	/* ----------------------------------------- /SMART BAR ----------------------------------------- */
-    $Alert->output();
-
-    echo $HTML->listing($emails,
-    		array('Name', 'Subject'),
-    		array('emailTitle', 'subject'),
-            array(
-                    'edit'   => 'edit',
-                    'delete' => 'delete',
-                ),
-            array(
-                'user'   => $CurrentUser,
-                'edit'   => 'perch_shop.emails.edit',
-                'delete' => 'perch_shop.emails.delete',
-                )
-            );
-
-    echo $HTML->paging($Paging);
-    ?>
-
-<?php include (PERCH_PATH.'/core/inc/main_end.php'); ?>
+    echo $Listing->render($emails);

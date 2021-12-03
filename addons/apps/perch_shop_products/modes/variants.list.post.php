@@ -1,38 +1,52 @@
-<?php include (PERCH_PATH.'/core/inc/sidebar_start.php'); ?>
-<p><?php //echo $Lang->get(''); ?></p>
-<?php include (PERCH_PATH.'/core/inc/sidebar_end.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/main_start.php'); ?>
-<?php include ('_subnav.php'); ?>
+<?php  echo $HTML->title_panel([
+            'heading' => $Lang->get('Listing all variants'),
+        ], $CurrentUser);
 
-    <h1><?php echo $Lang->get('Listing all variants'); ?></h1>
-
-	<?php
 	/* ----------------------------------------- SMART BAR ----------------------------------------- */
     $smartbar_selection = 'variants';
     include('_product_smartbar.php');
 	/* ----------------------------------------- /SMART BAR ----------------------------------------- */
-    $Alert->output();
 
-    echo $Form->form_start('edit');
+    echo $Form->form_start('edit', 'inner');
     echo $message;
     echo $Form->form_end();
 
 
-    echo $HTML->listing($variants, 
-    		array('SKU', 'Title', 'Options', 'Stock'), 
-    		array('sku', 'title', 'productVariantDesc', 'stock_level'), 
-            array(
-                    'edit'   => '../edit',
-                    'delete' => 'delete',
-                ),
-            array(
-                'user'   => $CurrentUser,
-                'edit'   => 'perch_shop.products.edit',
-                'delete' => 'perch_shop.products.edit',
-                )
-            );
-    echo $HTML->paging($Paging);
-    ?>
 
-<?php include (PERCH_PATH.'/core/inc/main_end.php'); ?>
-	
+    $Listing = new PerchAdminListing($CurrentUser, $HTML, $Lang, $Paging);
+    $Listing->add_col([
+            'title'     => 'SKU',
+            'value'     => 'sku',
+            'sort'      => 'sku',
+            'edit_link' => '../edit',
+            'priv'      => 'perch_shop.products.edit',
+        ]);
+
+    $Listing->add_col([
+            'title'     => 'Title',
+            'value'     => 'title',
+            'sort'      => 'title',
+        ]);    
+
+    $Listing->add_col([
+            'title'     => 'Options',
+            'value'     => 'productVariantDesc',
+            'sort'      => 'productVariantDesc',
+        ]);
+
+
+    $Listing->add_col([
+            'title'     => 'Stock',
+            'value'     => 'stock_level',
+            'sort'      => 'stock_level',
+        ]);
+
+
+    $Listing->add_delete_action([
+            'priv'   => 'perch_shop.products.delete',
+            'inline' => true,
+            'path'   => 'delete',
+        ]);
+
+    echo $Listing->render($variants);
+

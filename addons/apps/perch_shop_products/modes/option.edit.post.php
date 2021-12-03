@@ -1,29 +1,22 @@
 <?php
-    # Side panel
-    echo $HTML->side_panel_start();
-    //echo $HTML->para('');
-    echo $HTML->side_panel_end();
-
-    # Main panel
-    echo $HTML->main_panel_start();
-    include('_subnav.php');
 
     if (is_object($Option)) {
-        echo $HTML->heading1('Editing Option ‘%s’', $HTML->encode($Option->title()));
+        $title = $Lang->get('Editing Option ‘%s’', $HTML->encode($Option->title()));
     }else{
-        echo $HTML->heading1('Creating a New Option');
+        $title = $Lang->get('Creating a New Option');
     }
 
-    if ($message) echo $message;
 
-
+    echo $HTML->title_panel([
+            'heading' => $title,
+        ], $CurrentUser);
 
 
 
     $template_help_html = $Template->find_help();
     if ($template_help_html) {
         echo $HTML->heading2('Help');
-        echo '<div id="template-help">' . $template_help_html . '</div>';
+        echo '<div class="template-help">' . $template_help_html . '</div>';
     }
 
 

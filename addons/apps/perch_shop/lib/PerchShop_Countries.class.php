@@ -2,15 +2,16 @@
 
 class PerchShop_Countries extends PerchAPI_Factory
 {
-	protected $singular_classname = 'PerchShop_Country';
-	protected $table              = 'shop_countries';
-	protected $pk                 = 'countryID';
-	protected $namespace 		  = 'shop';
-	protected $event_prefix       = 'shop';
+	protected $singular_classname  = 'PerchShop_Country';
+	protected $table               = 'shop_countries';
+	protected $pk                  = 'countryID';
+	protected $namespace           = 'shop';
 	
-	protected $default_sort_column  = 'country';  
-
-	public $static_fields   = array('countryID', 'country', 'iso2', 'iso3', 'isonum', 'eu');
+	protected $default_sort_column = 'country';  
+	
+	public $static_fields          = array('countryID', 'country', 'iso2', 'iso3', 'isonum', 'eu', 'countryActive');
+	
+	protected $event_prefix        = 'shop.country';
 
 
 	public static function get_list_options()
@@ -18,7 +19,7 @@ class PerchShop_Countries extends PerchAPI_Factory
 		$API  = new PerchAPI(1.0, 'perch_shop');
 		$DB = $API->get('DB');
 
-		$sql = 'SELECT country, countryID FROM '.PERCH_DB_PREFIX.'shop_countries ORDER BY country ASC';
+		$sql = 'SELECT country, countryID FROM '.PERCH_DB_PREFIX.'shop_countries WHERE countryActive=1 ORDER BY country ASC';
 		$rows = $DB->get_rows($sql);
 
 		if (PerchUtil::count($rows)) {

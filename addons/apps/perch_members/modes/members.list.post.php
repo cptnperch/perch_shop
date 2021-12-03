@@ -1,78 +1,145 @@
 <?php
-    # Side panel
-    echo $HTML->side_panel_start();
 
-    //echo $HTML->para('');
+    echo $HTML->title_panel([
+        'heading' => $Lang->get('Listing members'),
+        'button'  => [
+            'text' => $Lang->get('Add member'),
+            'link' => $API->app_nav().'/edit/',
+            'icon' => 'core/plus',
+            ],
+    ], $CurrentUser);
 
-    echo $HTML->side_panel_end();
-    
-    
-    # Main panel
-    echo $HTML->main_panel_start();
-	
-	include('_subnav.php');
-
-    echo '<a class="add button" href="'.$HTML->encode($API->app_path().'/edit/').'">'.$Lang->get('Add Member').'</a>';
-
-	# Title panel
-    echo $HTML->heading1('Listing Members');
-    
     if (isset($message)) echo $message;
-?>
 
-    <?php
+
     /* ----------------------------------------- SMART BAR ----------------------------------------- */
-    if (true || PerchUtil::count($members)) {
-    ?>
+    
 
 
-    <ul class="smartbar">
-        <li class="<?php echo ($status=='all'?'selected':''); ?>"><a href="<?php echo PerchUtil::html($API->app_path()); ?>?status=all"><?php echo $Lang->get('All'); ?></a></li>
-        <li class="new <?php echo ($status=='pending'?'selected':''); ?>"><a href="<?php echo PerchUtil::html($API->app_path().'?status=pending'); ?>"><?php echo $Lang->get('Pending'); ?></a></li>
-        <?php
+        $Smartbar = new PerchSmartbar($CurrentUser, $HTML, $Lang);
 
-            if (PerchUtil::count($tags)) {
-                $items = array();
-                foreach($tags as $Tag) {
-                    $items[] = array(
-                            'arg'=>'tag',
-                            'val'=>$Tag->tag(),
-                            'label'=>$Tag->tagDisplay(),
-                            'path'=>$API->app_path()
-                        );
-                }
+        $Smartbar->add_item([
+            'active' => ($status=='all'),
+            'title' => $Lang->get('All'),
+            'link'  => $API->app_nav().'/?status=all',
+        ]);
 
-                echo PerchUtil::smartbar_filter('cf', 'By Tag', 'Filtered by ‘%s’', $items, 'folder', $Alert, "You are viewing members with tag ‘%s’", $API->app_path());
+        $Smartbar->add_item([
+            'active' => ($status=='pending'),
+            'title' => $Lang->get('Pending'),
+            'link'  => $API->app_nav().'/?status=pending',
+        ]);
+
+
+        $tag_options = [];
+        if (PerchUtil::count($tags)) {
+            foreach($tags as $Tag) {
+                $tag_options[] = [
+                    'value' => $Tag->tag(),
+                    'title' => $Tag->tagDisplay(),
+                ];
             }
-           
-            
-        
-        ?>
-    </ul>
-
-    <?php
-        }else{
-            $Alert->set('notice', $Lang->get('There are no members yet.'));
         }
 
-    ?>
+        $Smartbar->add_item([
+            'id'      => 'cf',
+            'title'   => 'By Tag',
+            'icon'    => 'core/tag',
+            'active'  => PerchRequest::get('tag'),
+            'type'    => 'filter',
+            'arg'     => 'tag',
+            //'persist' => ['view'],
+            'options' => $tag_options,
+            'actions' => [
+                        [
+                            'title'  => 'Clear',
+                            'remove' => ['tag', 'show-filter'],
+                            'icon'   => 'core/cancel',
+                        ]
+                    ],
+        ]);
 
-     <?php echo $Alert->output(); ?>
+        echo $Smartbar->render();
 
 
-    <?php
+        echo $Alert->output(); 
 
     /* ----------------------------------------- /SMART BAR ----------------------------------------- */
-    ?>
-
-
-
-<?php    
+     
     if (PerchUtil::count($members)) {
 
         $cols = $Members->get_edit_columns();
+
+        $Listing = new PerchAdminListing($CurrentUser, $HTML, $Lang, $Paging);
+        $first = true;
+        $i = 0;
+
+        foreach($cols as $col) {
+            $Listing->add_col([
+                    'title'     => $col['title'],
+                    'sort'      => (in_array($col['id'], $Members->static_fields) ? $col['id'] : false),
+                    'value'     => function($item) use ($col, $first, &$i) {
+                        $item = $item->to_array();
+                        if ($col['id']=='_title') {
+                            if (isset($item['_title'])) {
+                                $title = $item['_title'];
+                            }else{
+                                $i++;
+                                $title = PerchLang::get('Item').' '.$i;
+                            }
+                        }else{
+                            if (isset($item[$col['id']])) {
+                                $title = $item[$col['id']];
+                            }else{
+                                if ($first) {
+                                    if (isset($item['_title'])) {
+                                        $title = $item['_title'];
+                                    }else{
+                                        $i++;
+                                        $title = PerchLang::get('Item').' '.$i;
+                                    }
+                                }else{
+                                    $title = '-';
+                                }
+                            }
+
+                    }
+
+                        if ($col['Tag']) {
+
+                            $FieldType = PerchFieldTypes::get($col['Tag']->type(), false, $col['Tag']);
+
+                            $title = $FieldType->render_admin_listing($title);
+
+                            if ($col['Tag']->format()) {
+                                $Template = new PerchTemplate;
+                                $title = $Template->format_value($col['Tag'], $title);
+                            }
+                        }
+
+                        if ($first && trim($title)=='') {
+                            $title = '#'.$item['_id'];
+                        }
+
+                        return $title;
+
+                    },
+                    'edit_link' => ($first ? 'edit' : false),
+                ]);
+
+            $first = false;
+        }
+
+        $Listing->add_delete_action([
+                    'inline' => true,
+                    'path'   => 'delete',
+                ]);
         
-        echo '<table class="d itemlist">';
+            
+        echo $Listing->render($members);
+
+/*
+        echo '<div class="inner"><table class="d itemlist">';
             echo '<thead>';
                 echo '<tr>';
                     foreach($cols as $col) {
@@ -92,8 +159,8 @@
                     foreach($cols as $col) {
 
                         if ($first) { 
-                            echo '<td class="primary">';
-                            echo '<a href="'.$HTML->encode($API->app_path()).'/edit/?id='.$HTML->encode(urlencode($item['memberID'])).'">';
+                            echo '<td >';
+                            echo '<a class="primary" href="'.$HTML->encode($API->app_path()).'/edit/?id='.$HTML->encode(urlencode($item['memberID'])).'">';
                         }else{
                             echo '<td>';
                         }
@@ -151,7 +218,7 @@
             echo '</tbody>';
         
         
-        echo '</table>';
+        echo '</table></div>';
         
     
 
@@ -159,8 +226,7 @@
         if ($Paging->enabled()) {
             echo $HTML->paging($Paging);
         }
-    
+    */
 
     } // if pages
     
-    echo $HTML->main_panel_end();

@@ -1,36 +1,54 @@
-<?php include (PERCH_PATH.'/core/inc/sidebar_start.php'); ?>
-<p><?php //echo PerchLang::get(''); ?></p>
-<?php include (PERCH_PATH.'/core/inc/sidebar_end.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/main_start.php'); ?>
-<?php include ('_subnav.php'); ?>
+<?php 
 
-    <?php if ($CurrentUser->has_priv('perch_shop.statuses.create')) { ?>
-    <a class="add button" href="<?php echo PerchUtil::html($API->app_path('perch_shop').'/statuses/edit'); ?>"><?php echo $Lang->get('Add status'); ?></a>
-    <?php } // perch_shop.statuses.create ?>
-    
-    <h1><?php echo $Lang->get('Listing all statuses'); ?></h1>
+    echo $HTML->title_panel([
+        'heading' => $Lang->get('Listing all statuses'),
+        'button'  => [
+            'text' => $Lang->get('Add status'),
+            'link' => $API->app_nav().'/statuses/edit/',
+            'icon' => 'core/plus',
+            'priv' => 'perch_shop.statuses.create',
+        ],
+    ], $CurrentUser);
 
-	<?php
+
 	/* ----------------------------------------- SMART BAR ----------------------------------------- */
-       
+       include('_status_smartbar.php');
 	/* ----------------------------------------- /SMART BAR ----------------------------------------- */
-    $Alert->output();
 
-    echo $HTML->listing($statuses, 
-    		array('Status', 'Key', 'Index', 'Enabled'), 
-    		array('statusTitle', 'statusKey', 'statusIndex', 'active|statusActive'), 
-            array(
-                    'edit'   => 'edit',
-                    'delete' => 'delete',
-                ),
-            array(
-                'user'   => $CurrentUser,
-                'edit'   => 'perch_shop.statuses.edit',
-                'delete' => 'perch_shop.statuses.delete',
-                )
-            );
+    $Listing = new PerchAdminListing($CurrentUser, $HTML, $Lang, $Paging);
+    $Listing->add_col([
+            'title'     => 'Status',
+            'value'     => 'statusTitle',
+            'sort'      => 'statusTitle',
+            'edit_link' => 'edit',
+            'priv'      => 'perch_shop.statuses.edit',
+        ]);
 
-    echo $HTML->paging($Paging);
-    ?>
+    $Listing->add_col([
+            'title'     => 'Key',
+            'value'     => 'statusKey',
+            'sort'      => 'statusKey',
+        ]);
 
-<?php include (PERCH_PATH.'/core/inc/main_end.php'); ?>
+    $Listing->add_col([
+            'title'     => 'Index',
+            'value'     => 'statusIndex',
+            'sort'      => 'statusIndex',
+        ]);
+
+    $Listing->add_col([
+            'title'     => 'Enabled',
+            'value'     => 'statusActive',
+            'sort'      => 'statusActive',
+            'type'      => 'status',
+        ]);
+
+
+    $Listing->add_delete_action([
+            'priv'   => 'perch_shop.statuses.delete',
+            'inline' => true,
+            'path'   => 'delete',
+        ]);
+
+    echo $Listing->render($statuses);
+

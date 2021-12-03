@@ -1,36 +1,51 @@
-<?php include (PERCH_PATH.'/core/inc/sidebar_start.php'); ?>
-<p><?php //echo $Lang->get(''); ?></p>
-<?php include (PERCH_PATH.'/core/inc/sidebar_end.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/main_start.php'); ?>
-<?php include ('_subnav.php'); ?>
+<?php
+    echo $HTML->title_panel([
+        'heading' => $Lang->get('Listing all products'),
+        'button'  => [
+            'text' => $Lang->get('Add product'),
+            'link' => $API->app_nav('perch_shop_products').'/product/edit/',
+            'icon' => 'core/plus',
+            'priv' => 'perch_shop.products.create',
+        ],
+    ], $CurrentUser);
 
-    <?php if ($CurrentUser->has_priv('perch_shop.products.create')) { ?>
-    <a class="add button" href="<?php echo PerchUtil::html($API->app_path('perch_shop_products').'/product/edit'); ?>"><?php echo $Lang->get('Add product'); ?></a>
-    <?php } // perch_shop.products.create ?>
-    
-    <h1><?php echo $Lang->get('Listing all products'); ?></h1>
 
-	<?php
 	/* ----------------------------------------- SMART BAR ----------------------------------------- */
-       
+        include ('_products_smartbar.php');
 	/* ----------------------------------------- /SMART BAR ----------------------------------------- */
-    $Alert->output();
 
-    echo $HTML->listing($products, 
-    		array('SKU', 'Title', 'Stock', 'Price'), 
-    		array('sku', 'title', 'stock_level', 'implode|price'), 
-            array(
-                    'edit'   => 'product/edit',
-                    'delete' => 'product/delete',
-                ),
-            array(
-                'user'   => $CurrentUser,
-                'edit'   => 'perch_shop.products.edit',
-                'delete' => 'perch_shop.products.edit',
-                )
-            );
-    echo $HTML->paging($Paging);
-    ?>
+    $Listing = new PerchAdminListing($CurrentUser, $HTML, $Lang, $Paging);
+    $Listing->add_col([
+            'title'     => 'SKU',
+            'value'     => 'sku',
+            'sort'      => 'sku',
+            'edit_link' => 'product/edit',
+            'priv'      => 'perch_shop.products.edit',
+        ]);
 
-<?php include (PERCH_PATH.'/core/inc/main_end.php'); ?>
-	
+    $Listing->add_col([
+            'title'     => 'Title',
+            'value'     => 'title',
+            'sort'      => 'title',
+        ]);    
+
+    $Listing->add_col([
+            'title'     => 'Stock',
+            'value'     => 'stock_level',
+            'sort'      => 'stock_level',
+        ]);
+
+    $Listing->add_col([
+            'title'     => 'Price',
+            'value'     => function($Item) use ($HTML) {
+                return $Item->get_admin_display_prices();
+            },
+        ]);
+
+    $Listing->add_delete_action([
+            'priv'   => 'perch_shop.products.delete',
+            'inline' => true,
+            'path'   => 'product/delete',
+        ]);
+
+    echo $Listing->render($products);

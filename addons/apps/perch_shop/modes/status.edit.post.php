@@ -1,25 +1,23 @@
 <?php
-    # Side panel
-    echo $HTML->side_panel_start();
-    //echo $HTML->para('');
-    echo $HTML->side_panel_end();
-
-    # Main panel
-    echo $HTML->main_panel_start();
-    include('_subnav.php');
 
     if (is_object($Status)) {
-        echo $HTML->heading1('Editing Status ‘%s’', $HTML->encode($Status->statusTitle()));
+        $title = $Lang->get('Editing Status ‘%s’', $HTML->encode($Status->statusTitle()));
     }else{
-        echo $HTML->heading1('Creating a New Order Status');
+        $title = $Lang->get('Creating a New Order Status');
     }
 
-    if ($message) echo $message;
+    echo $HTML->title_panel([
+        'heading' => $title,
+    ], $CurrentUser);
+
+    /* ----------------------------------------- SMART BAR ----------------------------------------- */
+       include('_status_smartbar.php');
+    /* ----------------------------------------- /SMART BAR ----------------------------------------- */
 
     $template_help_html = $Template->find_help();
     if ($template_help_html) {
         echo $HTML->heading2('Help');
-        echo '<div id="template-help">' . $template_help_html . '</div>';
+        echo '<div class="template-help">' . $template_help_html . '</div>';
     }
 
     echo $HTML->heading2('Status');
@@ -38,6 +36,3 @@
         echo $Form->submit_field('btnSubmit', 'Save', $API->app_path());
 
     echo $Form->form_end();
-    /* ---- /FORM ---- */
-
-    echo $HTML->main_panel_end();

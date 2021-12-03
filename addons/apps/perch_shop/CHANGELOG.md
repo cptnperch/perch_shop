@@ -1,6 +1,50 @@
 # Change Log
 All notable changes to Perch Shop.
 
+## [1.2.6] - 2018-03-27
+### Added
+- Minor compatability updates for Perch/Runway 3.1
+### Fixed
+- Extra runtime checks for error conditions during checkout
+
+## [1.2.5] - 2017-09-21
+### Fixed
+- Fixes some type coercion errors in newer PHP/MySQL builds that were affecting cart calculations
+- Fixes link formatting issues in product edit page
+### Added
+- Adds lookup fields to searchable output e.g. to search products by brand name
+
+## [1.2.4] - 2017-08-15
+### Fixed
+- Formatting issues on member tag page
+### Added
+- Details of promo code to Orders export
+
+## [1.2.3] - 2017-07-17
+### Fixed
+- Fixes a bug with updating countries.
+
+## [1.2.1] - 2017-06-05
+### Fixed
+- Fixes an issue with cart pricing when sale prices are implemented
+
+## [1.2] - 2017-05-04
+### Added
+- Added fixed sales periods as part of Promotions
+- Added "use sale price" promotion type
+- Added country management
+- Adds API events to all shop entity types
+
+### Fixed
+- Fixes bug with order items not being processed in emails when triggered from control panel
+- Adds missing `perch_shop.emails.edit` privilege
+- Resets environment after logout
+- Fixed a bug with creating a promotion using multiple shipping methods
+
+## [1.1] - 2017-03-27
+### Fixed
+- Updated UI for Perch Runway 3
+
 ## [1.0.12] - 2017-01-25
 ### Fixed
 - Makes some optimisations to generating variants to make the process faster

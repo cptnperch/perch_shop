@@ -14,6 +14,8 @@ class PerchShop_OrderStatuses extends PerchShop_Factory
 
 	public static $statuses 	 	= [];
 
+	protected $event_prefix = 'shop.orderstatus';
+
 	public function find_by_key($key)
 	{
 		$sql = 'SELECT * FROM '.$this->table.' WHERE statusKey='.$this->db->pdb($key).' AND statusActive=1 AND statusDeleted IS NULL';

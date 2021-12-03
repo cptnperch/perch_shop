@@ -13,6 +13,8 @@ class PerchShop_Options extends PerchShop_Factory
 	protected $default_sort_column = 'optionPrecendence';
 	protected $created_date_column = 'optionCreated';
 
+	protected $event_prefix = 'shop.product.option';
+
 	public $productID = false;
 
 	public function get_checkbox_values($productID)

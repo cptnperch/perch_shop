@@ -4,7 +4,7 @@
 
     if ($CurrentUser->logged_in() && $CurrentUser->has_priv('perch_shop')) {
         $this->register_app('perch_shop', 'Shop', 1, 'Ecommerce', PERCH_SHOP_VERSION);
-        $this->require_version('perch_shop', '2.8.32');
+        $this->require_version('perch_shop', '3.1');
 
         $this->add_setting('perch_shop_price_tax_mode', 'Prices entered as', 'select', 'exc', [
                 ['label'=>'Tax exclusive', 'value'=>'exc'],
@@ -23,7 +23,7 @@
         $this->add_setting('perch_shop_invoice_number_format', 'Invoice number format', 'text', "Invoice%d");
 
         PerchSystem::register_admin_search_handler('PerchShop_SearchHandler');
-
+        PerchSystem::register_template_handler('PerchShop_Template');
     }
 
     include(__DIR__.'/lib/vendor/autoload.php');

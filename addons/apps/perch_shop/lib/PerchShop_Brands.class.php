@@ -17,6 +17,8 @@ class PerchShop_Brands extends PerchShop_Factory
 	protected $created_date_column = 'brandCreated';
 	public $deleted_date_column    = 'brandDeleted';
 
+	protected $event_prefix = 'shop.brand';
+
 	protected $runtime_restrictions = [
 		[
 			'field'          => 'status',

@@ -15,6 +15,8 @@ class PerchShop_OrderItems extends PerchShop_Factory
 	
 	protected $default_sort_column = 'itemID';
 
+	protected $event_prefix = 'shop.orderitem';
+
 
 	public function get_for_admin($orderID)
 	{

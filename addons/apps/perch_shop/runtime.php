@@ -16,6 +16,10 @@
             }
             return false;
         }
+        if (strpos($class_name, 'API_PerchShop')>0) {
+            include(__DIR__.'/lib/api/'.$class_name.'.class.php');
+            return true;
+        }
 		if (strpos($class_name, 'PerchShop_')===0) {
 			include(__DIR__.'/lib/'.$class_name.'.class.php');
 			return true;

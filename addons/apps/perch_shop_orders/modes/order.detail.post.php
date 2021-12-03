@@ -1,43 +1,29 @@
 <?php
-    # Side panel
-    echo $HTML->side_panel_start();
-    //echo $HTML->para('');
-    echo $HTML->side_panel_end();
 
-    # Main panel
-    echo $HTML->main_panel_start();
-    include('_subnav.php');
+    $opts = $Statuses->get_select_options();
 
-    echo $Form->form_start('status', 'topadd');
-        echo '<div class="holdem">';
+    $statuses = $Statuses->get_list(); 
+    $value = 'processing';
 
-        $opts = $Statuses->get_select_options();
+    for($i=0; $i<count($statuses); $i++) {
+        if ($statuses[$i] == $Order->orderStatus() && isset($statuses[$i+1])) {
+            $value = $statuses[$i+1];
+        } 
+    }
 
-        $statuses = $Statuses->get_list(); 
-        $value = 'processing';
+    echo $HTML->title_panel([
+        'heading' => $Lang->get('Viewing order'),
+        'form' => [
+            'action' => $Form->action(),
+            'button' => $Form->select_field('status', 'Change status to', $opts, $value).$Form->submit('btnSubmit', 'Update', 'button button-small')
+        ]
+    ], $CurrentUser);
 
-        for($i=0; $i<count($statuses); $i++) {
-            if ($statuses[$i] == $Order->orderStatus() && isset($statuses[$i+1])) {
-                $value = $statuses[$i+1];
-            } 
-        }
-
-        echo $Form->select_field('status', 'Change status to', $opts, $value);
-        echo $Form->submit_field('btnSubmit', 'Update', false, 'compact-button button');
-        echo '</div>';
-    echo $Form->form_end();
-
-
-
-    echo $HTML->heading1('Viewing Order');
-
-    if ($message) echo $message;
-
-
-include('_order_smartbar.php');
+    include('_order_smartbar.php');
 
 echo $HTML->heading2('Order');
 
+    echo '<div class="inner">';
     echo '<table class="d factsheet">';
 
     echo '<tr>';
@@ -69,6 +55,13 @@ echo $HTML->heading2('Order');
         echo '<th>'.$Lang->get('Total').'</th>';
         echo '<td>'.$HTML->encode($Currency->format_display($Order->orderTotal())).'</td>';
     echo '</tr>';
+
+    if ($Order->orderTaxID()) {
+        echo '<tr>';
+            echo '<th>'.$Lang->get('Tax ID').'</th>';
+            echo '<td>'.$HTML->encode($Order->orderTaxID()).'</td>';
+        echo '</tr>';
+    }   
 
     echo '<tr>';
         echo '<th>'.$Lang->get('Gateway').'</th>';
@@ -104,11 +97,11 @@ echo $HTML->heading2('Order');
 
     echo '</table>';
 
-
+    echo '</div>';
 
 echo $HTML->heading2('Customer');
 
-    echo '<table class="d factsheet">';
+    echo '<div class="inner"> <table class="d factsheet">';
 
     echo '<tr>';
         echo '<th>'.$Lang->get('Customer ID').'</th>';
@@ -199,11 +192,13 @@ echo $HTML->heading2('Customer');
 
     }
 
+    echo '</div>';
+
     $properties = PerchUtil::json_safe_decode($Order->orderDynamicFields(), true);
     if (PerchUtil::count($properties)) {
         echo $HTML->heading2('Additional information');
 
-        echo '<table class="d factsheet">';
+        echo '<div class="inner"><table class="d factsheet">';
 
         foreach($properties as $key => $val) {
             echo '<tr>';
@@ -217,8 +212,7 @@ echo $HTML->heading2('Customer');
     }
     
 
-
-    echo $HTML->main_panel_end();
+    echo '</div>';
 
 
     function echo_if($val, $HTML)
@@ -228,6 +222,9 @@ echo $HTML->heading2('Customer');
         }
     }
 ?>
+
+
+
 <style type="text/css">
 .holdem {
     min-width: 40px;

@@ -1,12 +1,13 @@
 <?php
 
-class PerchShop_Base extends PerchAPI_Base
+class PerchShop_Base extends PerchAPI_Base implements JsonSerializable
 {
 	protected $pk_is_int = true;
 
 	protected $date_fields = [];
 
 	public $deleted_date_column = null;
+	public $suppress_events     = false;
 
 	public function __sleep()
 	{
@@ -18,6 +19,11 @@ class PerchShop_Base extends PerchAPI_Base
 	public function __wakeup()
 	{
 		$this->db 	 = PerchDB::fetch();
+	}
+
+	public function jsonSerialize()
+	{
+		return $this->to_array_for_api();
 	}
 
 	public function delete()

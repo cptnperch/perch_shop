@@ -83,7 +83,7 @@ class PerchShop_TaxRates extends PerchShop_Factory
                 WHERE gr.rateID=r.rateID AND gr.groupID='.$this->db->pdb($groupID).' AND gr.locationID='.$this->db->pdb($locationID);
         $result = $this->db->get_value($sql);
 
-        if ($result) return $result;
+        if ($result) return floatval($result);
 
         return 0;
     }

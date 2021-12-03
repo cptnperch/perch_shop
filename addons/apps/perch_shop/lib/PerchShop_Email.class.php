@@ -11,5 +11,6 @@ class PerchShop_Email extends PerchShop_Base
 
 	protected $duplicate_fields  = array('emailTitle'=>'name', 'emailSlug'=>'slug', 'emailActive'=>'enabled');
 
+	protected $event_prefix = 'shop.email';
 
 }

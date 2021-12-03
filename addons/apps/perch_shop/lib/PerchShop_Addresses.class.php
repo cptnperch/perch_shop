@@ -17,6 +17,8 @@ class PerchShop_Addresses extends PerchShop_Factory
 	protected $created_date_column = 'addressCreated';
 	protected $deleted_date_column = 'addressDeleted';
 
+	protected $event_prefix = 'shop.address';
+
 	private $customerID = false;
 
 	protected $runtime_restrictions = [
@@ -33,7 +35,7 @@ class PerchShop_Addresses extends PerchShop_Factory
 
 	public function find_for_customer($customerID, $type_slug)
 	{
-		$sql = 'SELECT * FROM '.$this->table.' WHERE customerID='.$this->db->pdb($customerID).' AND orderID IS NULL AND addressSlug='.$this->db->pdb($type_slug);
+		$sql = 'SELECT * FROM '.$this->table.' WHERE customerID='.$this->db->pdb($customerID).' AND orderID IS NULL AND countryID>0 AND addressSlug='.$this->db->pdb($type_slug);
 		return $this->return_instance($this->db->get_row($sql));
 	}
 
@@ -72,6 +74,25 @@ class PerchShop_Addresses extends PerchShop_Factory
         	]);
         	       	
         }
+	}
+
+	public function create_from_default($customerID, $type_slug)
+	{
+		$sql = 'SELECT * FROM '.$this->table.' WHERE customerID='.$this->db->pdb($customerID).' AND orderID IS NULL AND countryID>0 AND addressSlug=\'default\'';
+		$default = $this->db->get_row($sql);
+
+		if (PerchUtil::count($default)) {
+			$default['addressSlug'] = $type_slug;
+			unset($default[$this->pk]);
+
+			$newID = $this->db->insert($this->table, $default);
+
+			$Adr = $this->find($newID);
+
+			return $Adr;
+		}
+
+		return false;
 	}
 
 	public function deprecate_default_address($customerID)

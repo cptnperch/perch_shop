@@ -143,16 +143,25 @@ class PerchShop_FieldType_API_Lookup extends PerchShop_FieldType
 	public function get_index($raw=false)
 	{
 		if ($raw===false) $raw = $this->get_raw();
-
-        $id = $this->Tag->id();
-
-        $out = array();
-
-        $out[] = array('key'=>$id, 'value'=>trim($raw));
-
-        $API  = new PerchAPI(1.0, 'perch_shop');
+		
+		$id    = $this->Tag->id();
+		
+		$out   = [];
+		$Item  = false;
+		
+		$API   = new PerchAPI(1.0, 'perch_shop');
 		$Items = new $this->class($API);
-		$Item = $Items->find($raw);
+		
+
+        if (is_array($raw) && PerchUtil::count($raw)) {
+        	foreach($raw as $val) {
+        		$out[] = array('key'=>$id, 'value'=>$val);
+        	}
+        } else {
+        	$raw = trim($raw);
+        	$out[] = array('key'=>$id, 'value'=>$raw);
+        	$Item = $Items->find($raw);
+        }
 
 		if ($Item) {
 			$raw = $Item->to_array();
@@ -168,6 +177,68 @@ class PerchShop_FieldType_API_Lookup extends PerchShop_FieldType
 		}
 		return $out;
 	}
+
+	public function get_search_text($raw=false)
+    {
+        if ($raw===false) $raw = $this->get_raw();
+		
+		$id    = $this->Tag->id();
+		
+		$out   = [];
+		$Item  = false;
+		
+		$API   = new PerchAPI(1.0, 'perch_shop');
+		$Items = new $this->class($API);
+		
+
+        if (is_array($raw) && PerchUtil::count($raw)) {
+        	foreach($raw as $val) {
+        		$out[] = $val;
+        	}
+        } else {
+        	$raw = trim($raw);
+        	$out[] = $raw;
+        	$Item = $Items->find($raw);
+        }
+
+		if ($Item) {
+			$raw = $Item->to_array();
+			if (is_array($raw)) {
+
+	            foreach($raw as $key=>$val) {
+	                if (!is_array($val) && strpos($key, 'perch_')===false && strpos($key, 'DynamicFields')===false) {
+	                    $out[] = trim($val);
+	                }
+	            }
+
+	        }
+		}
+		return implode(' ', $out);
+    }
+
+	public function get_api_value($raw=false)
+    {
+        if ($raw===false) $raw = $this->get_raw();
+
+        $API   = new PerchAPI(1.0, 'perch_shop');
+		$Items = new $this->class($API);
+
+        if (is_array($raw) && count($raw)) {
+            $out = array();
+            foreach($raw as $itemID) {
+                $Item = $Items->find((int)$itemID);
+                $out[] = $Item->to_array_for_api();
+            }
+
+            return $out;
+
+        } else {
+        	$Item = $Items->find((int)$raw);
+        	return $Item->to_array_for_api();
+        }
+
+        return $raw;
+    }
 }
 
 class PerchShop_FieldType_bool extends PerchShop_FieldType
@@ -612,6 +683,7 @@ class PerchFieldType_shop_promo_action extends PerchShop_FieldType
 		#$opts[] = array('label'=>$Lang->get('Buy X get Y free'), 			'value'=>'buy_x_get_y_free');
 		$opts[] = array('label'=>$Lang->get('Discount by fixed'), 			'value'=>'discount_by_fixed');
 		$opts[] = array('label'=>$Lang->get('Discount by percent'), 		'value'=>'discount_by_percent');
+		if (PERCH_RUNWAY) $opts[] = array('label'=>$Lang->get('Use sale price'), 'value'=>'use_sale_price');
 		#$opts[] = array('label'=>$Lang->get('Discount to fixed'),  			'value'=>'discount_to_fixed');
 		#$opts[] = array('label'=>$Lang->get('Discount subtotal by fixed'), 	'value'=>'discount_subtotal_fixed');
 		#$opts[] = array('label'=>$Lang->get('Discount subtotal by percent'),'value'=>'discount_subtotal_percent');
@@ -714,12 +786,12 @@ class PerchFieldType_shop_currency_value extends PerchShop_FieldType
         		if (isset($details[$this->Tag->input_id()])) $prev = $details[$this->Tag->input_id()];
         		//PerchUtil::debug($prev, 'success');
 
-        		$out .= '<div class="additional">';
+        		$out .= '<div class="field-wrap compact-set">';
         		$out .= $this->Form->text($id,
                                 $this->Form->get($prev, $Currency->id(), $this->Tag->default(), $this->Tag->post_prefix()),
                                 $this->Tag->size(),
                                 $this->Tag->maxlength(),
-                                'number',
+                                'number input-simple',
                                 $attributes);
         		$out .= ' '.$Currency->currencyCode();
         		$out .= '</div>';
@@ -822,6 +894,56 @@ class PerchFieldType_shop_currency_value extends PerchShop_FieldType
         return $out;
     }
 
+    public function get_api_value($raw=false)
+    {
+    	if ($raw===false) $raw = $this->get_raw();
+
+    	$id = $this->Tag->id();
+
+        $out = array();
+
+        if (PerchUtil::count($raw)) {
+
+        	foreach($raw as $currencyID=>$price) {
+        		$Currency = $this->get_currency((int)$currencyID);
+        		
+        		if ($Currency) {
+	        		$out[strtoupper($Currency->currencyCode())] = $price;
+        		}
+        		
+        	}
+
+        	return $out;
+        }
+
+
+        return $out;
+    }
+
+    public function import_data($data)
+    {
+        $id = $this->Tag->id();
+        if (array_key_exists($id, $data)) {
+
+        	$currencies = $this->get_currencies();
+
+        	if (PerchUtil::count($data[$id]) && PerchUtil::count($currencies)) {
+        		foreach($data[$id] as $curr=>$val) {
+        			foreach($currencies as $Currency) {
+        				if (strtoupper($curr) == $Currency->currencyCode()) {
+        					$data[$id.'_curr'.$Currency->id()] = $val;
+        				}
+        			}
+        		}
+        	}
+        	//PerchUtil::debug($data[$id]);
+
+            return $this->get_raw($data);
+        }
+
+        return null;
+    }
+
     protected function get_currencies()
     {
     	$API  = new PerchAPI(1.0, 'perch_shop');
@@ -901,7 +1023,7 @@ class PerchFieldType_shop_shipping_price extends PerchFieldType_shop_currency_va
         if (PerchUtil::count($zones)) {
         	foreach($zones as $Zone) {
         		$out .= '<div class="field" style="padding-left:0;">';
-        		$out .= '<fieldset style="clear:left;"><legend><label style="float:none;">'.$Zone->title().'</label></legend>';
+        		$out .= '<fieldset class="fieldset-clean"><legend><label>'.$Zone->title().'</label></legend>';
 
         		
         		
@@ -918,9 +1040,9 @@ class PerchFieldType_shop_shipping_price extends PerchFieldType_shop_currency_va
 		        }
 
         		
-        		$out .= '<div class="additional" style="margin-top:-18px;">';
-        		$out .= $this->Form->checkbox($id, 1, $checked);
-        		$out .= $this->Form->label($id, $Lang->get('Available'), 'inline');
+        		$out .= '<div class="checkbox-single">';
+        		$out .= $this->Form->label($id, $Lang->get('Available'));
+        		$out .= '<div class="form-entry">'.$this->Form->checkbox($id, 1, $checked).'</div>';
         		$out .= '</div>';
 
         		if (PerchUtil::count($currencies)) {
@@ -937,12 +1059,12 @@ class PerchFieldType_shop_shipping_price extends PerchFieldType_shop_currency_va
 		        		}
 		        		#PerchUtil::debug($prev, 'success');
 
-		        		$out .= '<div class="additional">';
+		        		$out .= '<div class="field-wrap compact-set">';
 		        		$out .= $this->Form->text($id,
 		                                $this->Form->get($prev, $Currency->id(), $this->Tag->default(), $this->Tag->post_prefix()),
 		                                $this->Tag->size(),
 		                                $this->Tag->maxlength(),
-		                                'number',
+		                                'number input-simple',
 		                                $attributes);
 		        		$out .= ' '.$Currency->currencyCode();
 		        		$out .= '</div>';

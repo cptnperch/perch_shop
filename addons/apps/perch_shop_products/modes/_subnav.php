@@ -1,6 +1,7 @@
 <?php
-	echo $HTML->subnav($CurrentUser, array(
-		array('page'=>array(
+	PerchUI::set_subnav([
+		[
+			'page'=>[
 						'perch_shop_products',
 						'perch_shop_products/product',
 						'perch_shop_products/product/edit',
@@ -11,17 +12,21 @@
 						'perch_shop_products/product/files/edit',
 						'perch_shop_products/product/files/delete',
 						'perch_shop_products/product/tags',
-						), 
-				'label'=>'Products'),
-		array('page'=>array(
+			], 
+			'label'=>'Products'
+		],
+		[
+			'page'=>[
 						'perch_shop_products/brands',
 						'perch_shop_products/brands/edit',
-						), 
-				'label'=>'Brands'),
-		array('page'=>array(
+			], 
+			'label'=>'Brands'
+		],
+		[	
+			'page'=>[
 						'perch_shop_products/options',
 						'perch_shop_products/options/edit',
-						), 
-				'label'=>'Options'),
-
-	));
+			], 
+			'label'=>'Options'
+		],
+	], $CurrentUser);

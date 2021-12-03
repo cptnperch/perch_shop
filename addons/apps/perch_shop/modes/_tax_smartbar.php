@@ -1,21 +1,30 @@
 <?php
 
+    if (isset($message)) {
+        echo $message;
+    }
+
 	if (!isset($smartbar_selection)) {
 		$smartbar_selection = 'groups';
 	}
 
 
-    echo $HTML->smartbar(
-            $HTML->smartbar_link(($smartbar_selection=='groups'),
-                    array(
-                        'link'=> $API->app_path('perch_shop').'/tax/',
-                        'label' => $Lang->get('Groups'),
-                    )
-                ),
-            $HTML->smartbar_link(($smartbar_selection=='locations'),
-                        array(
-                            'link'=> $API->app_path('perch_shop').'/tax/locations/',
-                            'label' => $Lang->get('Locations'),
-                        )
-                    )
-        );
+    $Smartbar = new PerchSmartbar($CurrentUser, $HTML, $Lang);
+
+    $Smartbar->add_item([
+        'active' => $smartbar_selection=='groups',
+        'title' => $Lang->get('Groups'),
+        'link'  => $API->app_nav('perch_shop').'/tax/',
+        'icon'  => 'ext/o-museum',
+    ]);
+
+    $Smartbar->add_item([
+        'active' => $smartbar_selection=='locations',
+        'title' => $Lang->get('Locations'),
+        'link'  => $API->app_nav('perch_shop').'/tax/locations/',
+        'icon'  => 'ext/o-map',
+    ]);
+
+
+    echo $Smartbar->render();
+

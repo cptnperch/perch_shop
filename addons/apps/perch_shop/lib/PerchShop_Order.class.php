@@ -10,6 +10,8 @@ class PerchShop_Order extends PerchShop_Base
 	protected $modified_date_column = 'orderUpdated';
     public $deleted_date_column  = 'orderDeleted';
 
+    protected $event_prefix = 'shop.order';
+
     protected $date_fields = ['orderUpdated', 'orderCreated'];
 
 	protected $duplicate_fields  = [
@@ -65,6 +67,20 @@ class PerchShop_Order extends PerchShop_Base
             return $out;
         }
         return null;
+    }
+
+    public function get_discount_code()
+    {
+        $promos = $this->get_promotions();
+
+        if (PerchUtil::count($promos)) {
+            foreach($promos as $Promo) {
+                $code = $Promo->get('discount_code');
+                if ($code) return $code;
+            }
+        }
+
+        return false;
     }
 
 
@@ -328,10 +344,7 @@ class PerchShop_Order extends PerchShop_Base
         $result['items'] = $order_items;
 
         $data = $this->format_invoice_for_template($result);
-        #if (isset($data['items'])) {
-		#	$PerchShop_Runtime = PerchShop_Runtime::fetch();
-		#	$PerchShop_Runtime->order_items = $data['items'];
-		#}
+
 		$Email->set_bulk($data);
         
         $Email->senderName($ShopEmail->sender_name());
@@ -609,6 +622,11 @@ class PerchShop_Order extends PerchShop_Base
 
                 $result['invoice_number'] = $result['orderInvoiceNumber'];
                 $result['exchange_rate'] = $result['orderExchangeRate'];
+
+                $discount_code = $this->get_discount_code();
+                if ($discount_code) {
+                    $result['discount_code'] = $discount_code;
+                };
 				
 			}
 

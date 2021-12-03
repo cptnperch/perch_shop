@@ -62,7 +62,7 @@
 		}
 
 		if (is_object($Product)) {
-		    $message = $HTML->success_message('Your product has been successfully edited. Return to %sproduct listing%s', '<a href="'.$API->app_path('perch_shop_products') .'">', '</a>');
+		    $message = $HTML->success_message('Your product has been successfully edited. Return to %sproduct listing%s', '<a href="'.$API->app_path('perch_shop_products') .'" class="notification-link">', '</a>');
 		}else{
 		    $message = $HTML->failure_message('Sorry, that update was not successful.');
 		}
@@ -72,7 +72,7 @@
 
 
 	if (PerchUtil::get('created') && !$message) {
-	    $message = $HTML->success_message('Your product has been successfully created. Return to %sproduct listing%s', '<a href="'. $API->app_path('perch_shop_products') .'">', '</a>');
+	    $message = $HTML->success_message('Your product has been successfully created. Return to %sproduct listing%s', '<a href="'. $API->app_path('perch_shop_products') .'" class="notification-link">', '</a>');
 	}
 
 	if (is_object($Product)) {

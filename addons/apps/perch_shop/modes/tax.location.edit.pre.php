@@ -99,7 +99,7 @@
 				}
 			}
 
-		    $message = $HTML->success_message('Your tax location has been successfully edited. Return to %slisting%s', '<a href="'.$API->app_path('perch_shop') .'/tax/locations">', '</a>');
+		    $message = $HTML->success_message('Your tax location has been successfully edited. Return to %slisting%s', '<a href="'.$API->app_path('perch_shop') .'/tax/locations" class="notification-link">', '</a>');
 		}else{
 		    $message = $HTML->failure_message('Sorry, that update was not successful.');
 		}
@@ -113,7 +113,7 @@
 	}
 
 	if (PerchUtil::get('created') && !$message) {
-	    $message = $HTML->success_message('Your tax location has been successfully created. Return to %s listing%s', '<a href="'. $API->app_path('perch_shop') .'/tax/locations">', '</a>');
+	    $message = $HTML->success_message('Your tax location has been successfully created. Return to %s listing%s', '<a href="'. $API->app_path('perch_shop') .'/tax/locations" class="notification-link">', '</a>');
 	}
 
 

@@ -3,20 +3,15 @@
     include('../../../core/inc/api.php');
     
     $API  = new PerchAPI(1.0, 'perch_members');
-    $Lang = $API->get('Lang');
-
-    # include your class files
-    include('PerchMembers_Members.class.php');
-    include('PerchMembers_Member.class.php');
-    include('PerchMembers_Tags.class.php');
-    include('PerchMembers_Tag.class.php');
-    include('PerchMembers_Forms.class.php');
-    include('PerchMembers_Form.class.php');
+    $HTML   = $API->get('HTML');
+    $Lang   = $API->get('Lang');
+    $Paging = $API->get('Paging');
 
     # Set the page title
     $Perch->page_title = $Lang->get('Manage Members');
 
     # Do anything you want to do before output is started
+    include('modes/_subnav.php');
     include('modes/members.list.pre.php');
     
     # Top layout

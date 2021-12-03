@@ -9,6 +9,8 @@ class PerchShop_Promotion extends PerchShop_Base
 
 	protected $modified_date_column = 'promoUpdated';
 
+	protected $event_prefix = 'shop.promotion';
+
 	protected $duplicate_fields  = [
 									'promoTitle' => 'title', 
 									'promoActive' => 'active',

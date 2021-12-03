@@ -1,23 +1,14 @@
 <?php
-    # Side panel
-    echo $HTML->side_panel_start();   
-    echo $HTML->side_panel_end();
-    
-    
-    # Main panel
-    echo $HTML->main_panel_start(); 
 
-    include('_subnav.php');
+    echo $HTML->title_panel([
+        'heading' => $Lang->get($heading1),
+    ], $CurrentUser);
 
-    echo $HTML->heading1($heading1);
-    
     if ($message) echo $message;    
-    
-    
+        
     echo $HTML->heading2('Member details');
     
-    
-    echo $Form->form_start(false, 'magnetic-save-bar');
+    echo $Form->form_start(false);
     
         //echo $Form->text_field('memberEmail', 'Email', isset($details['memberEmail'])?$details['memberEmail']:false, 'l');
 
@@ -51,6 +42,7 @@
 
         echo $HTML->heading2('Tags');
 ?>
+    <div class="form-inner">
         <table class="tags">
             <thead>
                 <tr>
@@ -81,7 +73,7 @@
 
             </tbody>
         </table>
-
+    </div>
 
 <?php
         }// is object Member
@@ -90,4 +82,3 @@
     
     echo $Form->form_end();
     
-    echo $HTML->main_panel_end();

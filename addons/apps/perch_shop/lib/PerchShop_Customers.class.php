@@ -16,6 +16,8 @@ class PerchShop_Customers extends PerchShop_Factory
 	protected $default_sort_column = 'customerLastName';
 	protected $created_date_column = 'customerCreated';
 
+    protected $event_prefix = 'shop.customer';
+
 
 	public function find_by_memberID($memberID)
 	{

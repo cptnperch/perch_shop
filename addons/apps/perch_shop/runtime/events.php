@@ -26,4 +26,9 @@
 
 		});
 
+		$API->on('members.logout', function($Event) {
+			$ShopRuntime = PerchShop_Runtime::fetch();
+			$ShopRuntime->reset_after_logout();
+		});
+
 	}

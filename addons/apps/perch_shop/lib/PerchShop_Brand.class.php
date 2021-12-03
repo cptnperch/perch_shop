@@ -12,4 +12,6 @@ class PerchShop_Brand extends PerchShop_Base
 
 	protected $duplicate_fields  = array('brandTitle'=>'title');
 
+	protected $event_prefix = 'shop.brand';
+
 }

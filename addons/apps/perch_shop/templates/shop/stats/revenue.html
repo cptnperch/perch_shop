@@ -1,10 +1,11 @@
 <perch:before>
 <div class="widget" data-app="revenue">
-	<h2>
-		Revenue <perch:shop id="currencyCode" />
-		<span class="note"><perch:shop id="total_to_date_formatted" /></span>
-	</h2>
-	<table>
+	<div class="dash-content">
+        <header>
+            <h2>Revenue <perch:shop id="currencyCode" /></h2>
+        </header>
+        <div class="body">
+            <table class="fig">
 </perch:before>
 		<tr>
 			<th><perch:shop id="orderMonth" format="%B %Y" /></th>
@@ -13,4 +14,10 @@
 <perch:after>
 	</table>
 </div>
+</div>
+</div>
 </perch:after>
+
+
+
+

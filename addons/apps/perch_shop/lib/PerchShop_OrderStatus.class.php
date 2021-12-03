@@ -13,4 +13,6 @@ class PerchShop_OrderStatus extends PerchShop_Base
 
 	protected $duplicate_fields  = [];
 
+	protected $event_prefix = 'shop.orderstatus';
+
 }

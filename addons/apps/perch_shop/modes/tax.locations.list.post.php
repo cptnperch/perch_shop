@@ -1,36 +1,48 @@
-<?php include (PERCH_PATH.'/core/inc/sidebar_start.php'); ?>
-<p><?php //echo PerchLang::get(''); ?></p>
-<?php include (PERCH_PATH.'/core/inc/sidebar_end.php'); ?>
-<?php include (PERCH_PATH.'/core/inc/main_start.php'); ?>
-<?php include ('_subnav.php'); ?>
+<?php
+    
+    echo $HTML->title_panel([
+        'heading' => $Lang->get('Listing all tax locations'),
+        'button'  => [
+            'text' => $Lang->get('Add tax location'),
+            'link' => $API->app_nav().'/tax/locations/edit/',
+            'icon' => 'core/plus',
+            'priv' => 'perch_shop.taxlocations.create',
+        ],
+    ], $CurrentUser);
 
-    <?php if ($CurrentUser->has_priv('perch_shop.taxlocations.create')) { ?>
-    <a class="add button" href="<?php echo PerchUtil::html($API->app_path('perch_shop').'/tax/locations/edit'); ?>"><?php echo $Lang->get('Add tax location'); ?></a>
-    <?php } // perch_shop.taxlocations.create ?>
-
-    <h1><?php echo $Lang->get('Listing all tax locations'); ?></h1>
-
-	<?php
 	/* ----------------------------------------- SMART BAR ----------------------------------------- */
         $smartbar_selection = 'locations';
        include('_tax_smartbar.php');
 	/* ----------------------------------------- /SMART BAR ----------------------------------------- */
-    $Alert->output();
 
-     echo $HTML->listing($locations,
-            array('Title', 'Home location', 'Default location'),
-            array('locationTitle', 'active|locationIsHome', 'active|locationIsDefault'),
-            array(
-                    'edit'   => 'edit',
-                    'delete' => 'delete',
-                ),
-            array(
-                'user'   => $CurrentUser,
-                'edit'   => 'perch_shop.taxlocations.edit',
-                'delete' => 'perch_shop.taxlocations.delete',
-                )
-            );
 
-    echo $HTML->paging($Paging);
+    $Listing = new PerchAdminListing($CurrentUser, $HTML, $Lang, $Paging);
+    $Listing->add_col([
+            'title'     => 'Title',
+            'value'     => 'locationTitle',
+            'sort'      => 'locationTitle',
+            'edit_link' => 'edit',
+            'priv'      => 'perch_shop.taxlocations.edit',
+        ]);
 
- include (PERCH_PATH.'/core/inc/main_end.php');
+    $Listing->add_col([
+            'title'     => 'Home location',
+            'value'     => 'locationIsHome',
+            'sort'      => 'locationIsHome',
+            'type'      => 'status',
+        ]);
+
+    $Listing->add_col([
+            'title'     => 'Default location',
+            'value'     => 'locationIsDefault',
+            'sort'      => 'locationIsDefault',
+            'type'      => 'status',
+        ]);
+
+    $Listing->add_delete_action([
+            'priv'   => 'perch_shop.taxlocations.delete',
+            'inline' => true,
+            'path'   => 'delete',
+        ]);
+
+    echo $Listing->render($locations);
